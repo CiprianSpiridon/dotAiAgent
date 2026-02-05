@@ -152,17 +152,6 @@ Define tokens for consistency across implementations:
 | Static site with no SSR | Either (ask user) |
 | Unclear | Ask user |
 
-**State Management Recommendations:**
-
-| Scenario | Recommendation |
-|----------|----------------|
-| Server data (API) | TanStack Query |
-| Form state | React Hook Form + Zod |
-| Global UI state | Zustand |
-| URL state | URL params (Next.js) or React Router |
-| Simple local state | useState/useReducer |
-| Complex local state | useReducer |
-
 ## Output Templates
 
 Use these templates in `references/` directory:
