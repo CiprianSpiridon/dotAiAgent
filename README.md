@@ -6,14 +6,19 @@ Production-tested [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 
 
 - Claude Code benefits from domain-specific context that generic prompts cannot provide
 - Repeated workflows (commits, PRs, debugging) should encode best practices once
-- Lessons learned in one session should propagate to all future sessions
+- **Lessons learned in one session should propagate to all future sessions** (this is the core innovation)
 - Multi-agent coordination requires consistent patterns and handoff protocols
+
+The **learnings system** is what makes this configuration self-improving. Every mistake becomes a documented pattern, every insight gets captured, and future sessions benefit automatically.
 
 ## What's Included
 
 - **10 Specialized Agents** — Domain experts for specific tech stacks
 - **15 Skills** — Reusable workflows invoked via slash commands
-- **Learnings System** — Institutional knowledge that improves over time (agents + skills)
+- **Self-Improving Learnings System** — 360° coverage with three core skills:
+  - `/update-agent-learnings` — Code patterns → synced to all agents
+  - `/update-skill-learnings` — Skill patterns → central knowledge base
+  - `/update-claude-learnings` — Behavioral rules → project CLAUDE.md
 
 ## Repository Structure
 
@@ -140,58 +145,160 @@ Skills encode reusable workflows triggered via slash commands or auto-invoked by
 | Multiple independent features | Parallel Agents | Concurrent execution, faster completion |
 | Multiple unrelated bugs | Parallel Debug Agents | Isolated diagnosis, no cross-contamination |
 
-## Learnings System
+## Learnings System (Core Feature)
 
-The learnings system provides **360° coverage** for capturing patterns and mistakes from real sessions.
+The learnings system is the **foundation** of this configuration. It provides **360° coverage** for capturing patterns and mistakes from real sessions, ensuring Claude Code continuously improves.
 
-### Complete Learning System
+### Why This Matters
 
-| Skill | Target | Audience | What It Captures |
-|-------|--------|----------|------------------|
-| `/update-agent-learnings` | agent-learnings.md → agent files | Subagents | Application code patterns |
-| `/update-skill-learnings` | skill-learnings.md | Skill creators | Skill structure patterns |
-| `/update-claude-learnings` | CLAUDE.md | Main agent | Behavioral rules |
+Without a learnings system:
+- Same mistakes repeat across sessions
+- Best practices stay in one developer's head
+- New team members start from scratch
+- Institutional knowledge is lost
 
-### Agent Learnings
+With this learnings system:
+- Mistakes become documented patterns to avoid
+- Best practices propagate to all agents automatically
+- New sessions benefit from all previous insights
+- Knowledge compounds over time
 
-Central repository: `learnings/agent-learnings.md`
+### The Three Core Learning Skills
+
+These skills form the backbone of the self-improving system:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    360° LEARNING COVERAGE                       │
+├─────────────────────┬─────────────────────┬─────────────────────┤
+│                     │                     │                     │
+│  /update-agent-     │  /update-skill-     │  /update-claude-    │
+│  learnings          │  learnings          │  learnings          │
+│                     │                     │                     │
+│  ┌───────────────┐  │  ┌───────────────┐  │  ┌───────────────┐  │
+│  │ agent-        │  │  │ skill-        │  │  │ CLAUDE.md     │  │
+│  │ learnings.md  │  │  │ learnings.md  │  │  │               │  │
+│  └───────┬───────┘  │  └───────────────┘  │  └───────────────┘  │
+│          │          │                     │                     │
+│          ▼          │                     │                     │
+│  ┌───────────────┐  │                     │                     │
+│  │ All Agent     │  │                     │                     │
+│  │ Files Synced  │  │                     │                     │
+│  └───────────────┘  │                     │                     │
+│                     │                     │                     │
+│  WHO: Subagents     │  WHO: Skill         │  WHO: Main Claude   │
+│  writing app code   │  creators           │  Code agent         │
+│                     │                     │                     │
+│  WHAT: Code         │  WHAT: Skill        │  WHAT: Behavioral   │
+│  patterns           │  structure          │  rules              │
+│                     │                     │                     │
+└─────────────────────┴─────────────────────┴─────────────────────┘
+```
+
+---
+
+### `/update-agent-learnings`
+
+**Purpose:** Capture patterns about writing application code and propagate them to all subagents.
+
+**When to use:** After sessions where subagents (nodejs-cli, fastapi, nextjs, etc.) made mistakes or discovered better patterns while writing code.
+
+**Target:** `learnings/agent-learnings.md` → synced to all agent files
 
 | Scope | Description | Propagation |
 |-------|-------------|-------------|
 | **Global** | Scope control, session management, testing | All subagents |
 | **Agent-Specific** | Framework/language patterns | Relevant agent only |
 
-**Categories:** Scope Control, Session Management, Multi-Agent Coordination, Autonomous Iteration, Testing Integration
+**Categories:**
+- Scope Control — Prevent over-engineering, confirm before expanding
+- Session Management — Checkpoints, progress summaries, timeout handling
+- Multi-Agent Coordination — Focus boundaries, handoffs, completion signaling
+- Autonomous Iteration — Test cycles, error handling, retry limits
+- Testing Integration — Validation requirements per tech stack
 
-### Skill Learnings
+**Example learnings:**
+- "Run tsc --noEmit after TypeScript edits"
+- "Mock stdin/stdout for CLI prompt tests"
+- "Never modify test files unless explicitly requested"
 
-Central repository: `learnings/skill-learnings.md`
+---
+
+### `/update-skill-learnings`
+
+**Purpose:** Capture patterns about creating and improving skills.
+
+**When to use:** After creating a new skill, improving an existing skill, or discovering structural patterns that make skills more effective.
+
+**Target:** `learnings/skill-learnings.md`
 
 | Category | Description |
 |----------|-------------|
-| **Structural Patterns** | Required sections, quality signals |
-| **Content Patterns** | Clarity, user interaction |
-| **Anti-Patterns** | Common mistakes to avoid |
+| **Structural Patterns** | Required sections, quality signals, file organization |
+| **Content Patterns** | Writing clarity, user interaction, examples |
+| **Anti-Patterns** | Common mistakes to avoid in skills |
 | **Skill-Specific** | Per-skill insights |
 
-### Claude Learnings
+**Example learnings:**
+- "Include EXTREMELY-IMPORTANT block after frontmatter"
+- "Add Gate checkpoints between all workflow steps"
+- "Include Quality Checklist with 8/10 scoring system"
 
-Target: Project's `CLAUDE.md` file
+---
+
+### `/update-claude-learnings`
+
+**Purpose:** Capture behavioral rules for the main Claude Code agent.
+
+**When to use:** After discovering that Claude Code should use skills instead of manual commands, or when session management / scope control issues occur.
+
+**Target:** Project's `CLAUDE.md` file
 
 | Category | Description |
 |----------|-------------|
-| **Workflow Rules** | Skill usage, command patterns |
-| **Session Management** | Checkpoints, timeouts, progress |
-| **Scope Control** | Expansion rules, confirmations |
+| **Workflow Rules** | Skill usage, command patterns, tool preferences |
+| **Session Management** | Checkpoints, timeouts, progress tracking |
+| **Scope Control** | Expansion rules, confirmation patterns |
 | **Behavioral Patterns** | Project-specific behaviors |
 
-### When to Update Learnings
+**Example learnings:**
+- "Use /commit instead of manual git add && git commit"
+- "Provide checkpoint summaries every 3-5 edits on complex tasks"
+- "Ask before expanding scope to adjacent code"
 
-| Session Revealed... | Use This Skill |
-|---------------------|----------------|
-| Application code pattern | `/update-agent-learnings` |
-| Skill creation insight | `/update-skill-learnings` |
-| Claude Code behavior rule | `/update-claude-learnings` |
+---
+
+### Decision Guide: Which Skill to Use?
+
+| Session Revealed... | Example | Use This Skill |
+|---------------------|---------|----------------|
+| Application code pattern | "Always run tests after code changes" | `/update-agent-learnings` |
+| Skill structure insight | "Skills need Gate checkpoints" | `/update-skill-learnings` |
+| Claude Code behavior rule | "Use /commit skill not manual commands" | `/update-claude-learnings` |
+
+**Quick test:** Ask yourself "Who needs this learning?"
+- Subagents writing code → `/update-agent-learnings`
+- Someone creating skills → `/update-skill-learnings`
+- Main Claude Code agent → `/update-claude-learnings`
+
+---
+
+### Workflow: After Every Significant Session
+
+```
+Session ends
+     │
+     ▼
+Did something go wrong or could be improved?
+     │
+     ├── Yes → Identify the pattern
+     │         │
+     │         ├── Code pattern? ────────→ /update-agent-learnings
+     │         ├── Skill pattern? ───────→ /update-skill-learnings
+     │         └── Behavior pattern? ────→ /update-claude-learnings
+     │
+     └── No → Continue (knowledge preserved from previous sessions)
+```
 
 ## Customization
 
