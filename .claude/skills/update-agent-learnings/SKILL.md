@@ -1,6 +1,6 @@
 ---
 name: update-agent-learnings
-description: Extract learnings from a session and propagate them to the central learnings file and all agent files. Use when a session revealed patterns, mistakes, or insights that should inform future agent behavior. Invoke via /update-learnings or after challenging sessions.
+description: Extract learnings from a session and propagate them to appropriate agent files based on scope (Global for all subagents, Claude Code Only for main agent, or Agent-Specific). Use when a session revealed patterns, mistakes, or insights. Invoke via /update-agent-learnings or after challenging sessions.
 ---
 
 # Update Agent Learnings
@@ -9,7 +9,12 @@ description: Extract learnings from a session and propagate them to the central 
 
 Extract learnings from the current session and systematically propagate them to:
 1. The central learnings repository (`.claude/learnings/agent-learnings.md`)
-2. All agent files via their `## Learnings` section
+2. Appropriate agent files based on learning scope
+
+**IMPORTANT: Not all learnings apply to all agents.**
+
+- **Subagent learnings** (Global, Agent-Specific): Apply to specialized engineer agents that write application code
+- **Claude Code learnings**: Apply only to the main Claude Code agent, NOT propagated to subagents
 
 This creates a feedback loop that improves agent behavior over time based on real-world session outcomes.
 
@@ -74,8 +79,33 @@ Each learning should specify:
 | Field | Options | Description |
 |-------|---------|-------------|
 | **Category** | Scope Control, Session Management, Multi-Agent Coordination, Autonomous Iteration, Testing Integration, Other | Where does this learning fit? |
-| **Scope** | Global or [Agent Name] | Does it apply to all agents or just one? |
+| **Scope** | Global, Claude Code Only, or [Agent Name] | Who does this learning apply to? |
 | **Action Type** | Always, Never, Prefer | How strong is the directive? |
+
+### Scope Decision Guide
+
+**CRITICAL: Choose the correct scope. Not all learnings belong in subagent files.**
+
+| Scope | When to Use | Propagate to Subagents? |
+|-------|-------------|------------------------|
+| **Global** | Learnings about writing code, testing, debugging, scope control | ✅ Yes - all subagents |
+| **Claude Code Only** | Learnings about skills, agents, configuration files, orchestration | ❌ No - main agent only |
+| **[Agent Name]** | Learnings specific to one technology/framework | ✅ Yes - that agent only |
+
+**Examples of Claude Code Only learnings (DO NOT propagate to subagents):**
+- Improving skills or configuration files
+- Creating or modifying agent definitions
+- Orchestrating multiple subagents
+- Working with CLAUDE.md or project setup
+- Meta-level patterns about how Claude Code works
+
+**Examples of Global learnings (DO propagate to subagents):**
+- Scope control when writing application code
+- Testing practices for code changes
+- Session management and checkpointing
+- Multi-agent coordination as a subagent
+
+**Ask yourself:** "Would a nodejs-cli-senior-engineer or fastapi-senior-engineer need this learning while writing application code?" If no, it's Claude Code Only.
 
 ## Phase 3: Update Central Learnings File
 
@@ -97,7 +127,7 @@ The learnings file should follow this structure:
 
 ## Global Learnings
 
-These learnings apply to ALL agents and should be synced to every agent file.
+These learnings apply to ALL subagents and should be synced to every agent file.
 
 ### Scope Control
 - [learning items...]
@@ -113,6 +143,21 @@ These learnings apply to ALL agents and should be synced to every agent file.
 
 ### Testing Integration
 - [learning items...]
+
+---
+
+## Claude Code Only Learnings
+
+These learnings apply ONLY to the main Claude Code agent. DO NOT propagate to subagent files.
+
+### Skills & Configuration
+- [learnings about creating/improving skills, agents, configs...]
+
+### Orchestration
+- [learnings about coordinating subagents, workflows...]
+
+### Project Setup
+- [learnings about CLAUDE.md, project initialization...]
 
 ---
 
@@ -133,11 +178,14 @@ These learnings apply to ALL agents and should be synced to every agent file.
 
 **CRITICAL: This phase requires a FULL SYNC of the `## Learnings` section, not just adding new learnings.**
 
+**IMPORTANT: Only propagate learnings that apply to subagents. Skip "Claude Code Only" learnings.**
+
 ### Step 4.1: Read Central Learnings
 
 First, read `.claude/learnings/agent-learnings.md` and extract:
-1. All content under `## Global Learnings` (all categories: Scope Control, Session Management, etc.)
-2. All content under `## Agent-Specific Learnings` (per-agent subsections)
+1. All content under `## Global Learnings` (all categories: Scope Control, Session Management, etc.) → **Propagate to ALL subagents**
+2. All content under `## Agent-Specific Learnings` (per-agent subsections) → **Propagate to THAT agent only**
+3. All content under `## Claude Code Only Learnings` → **DO NOT propagate to any subagent files**
 
 ### Step 4.2: Process Each Agent File
 
@@ -358,6 +406,22 @@ Before marking the update complete, verify:
 **Result:**
 1. Added to `.claude/learnings/agent-learnings.md` under Agent-Specific Learnings → nodejs-cli-senior-engineer
 2. Added only to `nodejs-cli-senior-engineer.md` under Agent-Specific Learnings
+
+### Example 3: Adding a Claude Code Only Learning (NOT propagated to subagents)
+
+**Session Issue:** Improved a skill without first reading a reference skill for quality patterns.
+
+**Learning Extraction:**
+- Category: Skills & Configuration
+- Scope: Claude Code Only
+- Action Type: Always
+- Learning: "When improving a skill or configuration file, read a reference example first to understand the quality bar and structural patterns expected"
+
+**Result:**
+1. Added to `.claude/learnings/agent-learnings.md` under Claude Code Only Learnings → Skills & Configuration
+2. **NOT propagated to any subagent files** (nodejs-cli, fastapi, etc. don't create skills)
+
+**Why Claude Code Only?** This learning is about meta-work (improving skills/configs) that only the main Claude Code agent does. The specialized engineer agents (nodejs-cli-senior-engineer, fastapi-senior-engineer, etc.) focus on writing application code, not on creating or improving Claude Code skills.
 
 ## Integration with Other Skills
 

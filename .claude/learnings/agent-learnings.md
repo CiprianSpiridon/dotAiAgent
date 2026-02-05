@@ -78,6 +78,26 @@ These learnings apply to ALL agents and should be synced to every agent file.
 
 ---
 
+## Claude Code Only Learnings
+
+These learnings apply ONLY to the main Claude Code agent. DO NOT propagate to subagent files.
+
+Subagents (nodejs-cli-senior-engineer, fastapi-senior-engineer, etc.) focus on writing application code. They don't create skills, agents, or configuration files, so these learnings don't apply to them.
+
+### Skills & Configuration
+
+- When improving a skill or configuration file, read a reference example first to understand the quality bar and structural patterns expected
+
+### Orchestration
+
+*No learnings yet*
+
+### Project Setup
+
+*No learnings yet*
+
+---
+
 ## Effective Patterns
 
 ### Read-Edit Ratio
