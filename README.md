@@ -12,8 +12,8 @@ Production-tested [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 
 ## What's Included
 
 - **10 Specialized Agents** — Domain experts for specific tech stacks
-- **10 Skills** — Reusable workflows invoked via slash commands
-- **Learnings System** — Institutional knowledge that improves over time
+- **14 Skills** — Reusable workflows invoked via slash commands
+- **Learnings System** — Institutional knowledge that improves over time (agents + skills)
 
 ## Repository Structure
 
@@ -31,7 +31,8 @@ Production-tested [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 
 │   ├── python-senior-engineer.md
 │   └── react-vite-tailwind-engineer.md
 ├── learnings/
-│   └── agent-learnings.md
+│   ├── agent-learnings.md
+│   └── skill-learnings.md
 └── skills/
     ├── ast-grep/
     │   ├── SKILL.md
@@ -70,9 +71,18 @@ Production-tested [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 
     │       ├── discovery.md
     │       ├── skill_discovery_patterns.md
     │       └── sync-claude-md.md
+    ├── ulpi-generate-hooks/
+    │   ├── SKILL.md
+    │   └── references/
+    │       ├── framework-rules.md
+    │       └── language-rules.md
     ├── update-agent-learnings/
     │   └── SKILL.md
-    └── update-claude-md-after-install/
+    ├── update-claude-md-after-install/
+    │   └── SKILL.md
+    ├── update-skill-learnings/
+    │   └── SKILL.md
+    └── frontend-design-ui-ux/
         └── SKILL.md
 ```
 
@@ -109,8 +119,11 @@ Skills encode reusable workflows triggered via slash commands or auto-invoked by
 | `plan-enhanced` | `/plan-enhanced` | Structure plans for parallel agent execution |
 | `run-parallel-agents-feature-build` | Auto | Orchestrate parallel agents for independent features |
 | `run-parallel-agents-feature-debug` | Auto | Orchestrate parallel agents for isolated bugs |
-| `update-agent-learnings` | `/update-agent-learnings` | Extract session insights, propagate to all agents |
+| `ulpi-generate-hooks` | `/ulpi-generate-hooks` | Generate ULPI Hooks rules.yml for project tech stack |
+| `update-agent-learnings` | `/update-agent-learnings` | Extract session insights, propagate to agents |
+| `update-skill-learnings` | `/update-skill-learnings` | Extract skill creation insights, update skill patterns |
 | `update-claude-md-after-install` | Auto | Replace generic CLAUDE.md examples with real project patterns |
+| `frontend-design-ui-ux` | `/frontend-design-ui-ux` | Generate UI/UX design specifications and component briefs |
 
 ## When to Use What
 
@@ -124,27 +137,42 @@ Skills encode reusable workflows triggered via slash commands or auto-invoked by
 
 ## Learnings System
 
-The learnings system captures patterns and mistakes from real sessions and propagates them to all agents.
+The learnings system captures patterns and mistakes from real sessions and propagates them appropriately.
 
-1. **Central Repository** — `learnings/agent-learnings.md` stores all learnings
-2. **Global Learnings** — Apply to all agents (scope control, session management)
-3. **Agent-Specific Learnings** — Apply only to relevant agents
-4. **Auto-Sync** — Each agent's `## Learnings` section syncs from central repository
+### Agent Learnings
 
-### Categories
+Central repository: `learnings/agent-learnings.md`
 
-- **Scope Control** — Prevent over-engineering, confirm before expanding
-- **Session Management** — Checkpoints, progress summaries, timeout handling
-- **Multi-Agent Coordination** — Focus boundaries, handoffs, completion signaling
-- **Autonomous Iteration** — Test cycles, error handling, retry limits
-- **Testing Integration** — Validation requirements per tech stack
+| Scope | Description | Propagation |
+|-------|-------------|-------------|
+| **Global** | Scope control, session management, testing | All subagents |
+| **Claude Code Only** | Skills, configs, orchestration | Main agent only |
+| **Agent-Specific** | Framework/language patterns | Relevant agent only |
 
-### Adding New Learnings
+**Categories:** Scope Control, Session Management, Multi-Agent Coordination, Autonomous Iteration, Testing Integration
 
-Run `/update-agent-learnings` after sessions where:
+**Command:** `/update-agent-learnings`
+
+### Skill Learnings
+
+Central repository: `learnings/skill-learnings.md`
+
+| Category | Description |
+|----------|-------------|
+| **Structural Patterns** | Required sections, quality signals |
+| **Content Patterns** | Clarity, user interaction |
+| **Anti-Patterns** | Common mistakes to avoid |
+| **Skill-Specific** | Per-skill insights |
+
+**Command:** `/update-skill-learnings`
+
+### When to Update Learnings
+
+Run the appropriate command after sessions where:
 - A preventable mistake occurred
 - A better pattern emerged
 - User feedback indicated a behavior change needed
+- A new skill was created or improved
 
 ## Customization
 
