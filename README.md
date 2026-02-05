@@ -12,7 +12,7 @@ Production-tested [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 
 ## What's Included
 
 - **10 Specialized Agents** — Domain experts for specific tech stacks
-- **14 Skills** — Reusable workflows invoked via slash commands
+- **15 Skills** — Reusable workflows invoked via slash commands
 - **Learnings System** — Institutional knowledge that improves over time (agents + skills)
 
 ## Repository Structure
@@ -82,6 +82,10 @@ Production-tested [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 
     │   └── SKILL.md
     ├── update-skill-learnings/
     │   └── SKILL.md
+    ├── update-claude-learnings/
+    │   ├── SKILL.md
+    │   └── references/
+    │       └── claude-md-template.md
     └── frontend-design-ui-ux/
         └── SKILL.md
 ```
@@ -122,6 +126,7 @@ Skills encode reusable workflows triggered via slash commands or auto-invoked by
 | `ulpi-generate-hooks` | `/ulpi-generate-hooks` | Generate ULPI Hooks rules.yml for project tech stack |
 | `update-agent-learnings` | `/update-agent-learnings` | Extract session insights, propagate to agents |
 | `update-skill-learnings` | `/update-skill-learnings` | Extract skill creation insights, update skill patterns |
+| `update-claude-learnings` | `/update-claude-learnings` | Extract Claude Code behavior rules, update CLAUDE.md |
 | `update-claude-md-after-install` | Auto | Replace generic CLAUDE.md examples with real project patterns |
 | `frontend-design-ui-ux` | `/frontend-design-ui-ux` | Generate UI/UX design specifications and component briefs |
 
@@ -137,7 +142,15 @@ Skills encode reusable workflows triggered via slash commands or auto-invoked by
 
 ## Learnings System
 
-The learnings system captures patterns and mistakes from real sessions and propagates them appropriately.
+The learnings system provides **360° coverage** for capturing patterns and mistakes from real sessions.
+
+### Complete Learning System
+
+| Skill | Target | Audience | What It Captures |
+|-------|--------|----------|------------------|
+| `/update-agent-learnings` | agent-learnings.md → agent files | Subagents | Application code patterns |
+| `/update-skill-learnings` | skill-learnings.md | Skill creators | Skill structure patterns |
+| `/update-claude-learnings` | CLAUDE.md | Main agent | Behavioral rules |
 
 ### Agent Learnings
 
@@ -146,12 +159,9 @@ Central repository: `learnings/agent-learnings.md`
 | Scope | Description | Propagation |
 |-------|-------------|-------------|
 | **Global** | Scope control, session management, testing | All subagents |
-| **Claude Code Only** | Skills, configs, orchestration | Main agent only |
 | **Agent-Specific** | Framework/language patterns | Relevant agent only |
 
 **Categories:** Scope Control, Session Management, Multi-Agent Coordination, Autonomous Iteration, Testing Integration
-
-**Command:** `/update-agent-learnings`
 
 ### Skill Learnings
 
@@ -164,15 +174,24 @@ Central repository: `learnings/skill-learnings.md`
 | **Anti-Patterns** | Common mistakes to avoid |
 | **Skill-Specific** | Per-skill insights |
 
-**Command:** `/update-skill-learnings`
+### Claude Learnings
+
+Target: Project's `CLAUDE.md` file
+
+| Category | Description |
+|----------|-------------|
+| **Workflow Rules** | Skill usage, command patterns |
+| **Session Management** | Checkpoints, timeouts, progress |
+| **Scope Control** | Expansion rules, confirmations |
+| **Behavioral Patterns** | Project-specific behaviors |
 
 ### When to Update Learnings
 
-Run the appropriate command after sessions where:
-- A preventable mistake occurred
-- A better pattern emerged
-- User feedback indicated a behavior change needed
-- A new skill was created or improved
+| Session Revealed... | Use This Skill |
+|---------------------|----------------|
+| Application code pattern | `/update-agent-learnings` |
+| Skill creation insight | `/update-skill-learnings` |
+| Claude Code behavior rule | `/update-claude-learnings` |
 
 ## Customization
 
