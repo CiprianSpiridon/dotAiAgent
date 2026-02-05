@@ -23,20 +23,63 @@ This is not optional. Every ast-grep search requires disciplined verification.
 
 Before writing ANY ast-grep rule, you **MUST** complete this checklist:
 
-1. ☐ Clarify what the user wants to find (pattern, language, edge cases)
-2. ☐ Create example code snippet representing the target pattern
-3. ☐ Use `--debug-query=cst` to inspect the AST structure
-4. ☐ Identify the correct `kind` values for target nodes
-5. ☐ Write the simplest rule that could work (pattern first)
-6. ☐ Add `stopBy: end` to any relational rules (inside/has)
-7. ☐ Test rule against example code with `--stdin`
-8. ☐ Announce: "Searching for [pattern description] using [rule type]"
+1. ☐ **Verify ast-grep is installed** (run `ast-grep --version`)
+2. ☐ **If not installed, provide installation instructions and STOP**
+3. ☐ Clarify what the user wants to find (pattern, language, edge cases)
+4. ☐ Create example code snippet representing the target pattern
+5. ☐ Use `--debug-query=cst` to inspect the AST structure
+6. ☐ Identify the correct `kind` values for target nodes
+7. ☐ Write the simplest rule that could work (pattern first)
+8. ☐ Add `stopBy: end` to any relational rules (inside/has)
+9. ☐ Test rule against example code with `--stdin`
+10. ☐ Announce: "Searching for [pattern description] using [rule type]"
 
 **Writing ast-grep rules WITHOUT completing this checklist = missed matches.**
 
 ## Overview
 
 This skill helps translate natural language queries into ast-grep rules for structural code search. ast-grep uses Abstract Syntax Tree (AST) patterns to match code based on its structure rather than just text, enabling powerful and precise code search across large codebases.
+
+## Prerequisites Check
+
+**CRITICAL: Before proceeding with any ast-grep search, verify ast-grep is installed.**
+
+Check if ast-grep is available:
+
+```bash
+ast-grep --version
+```
+
+**If ast-grep is NOT installed:**
+
+1. Inform the user: "ast-grep is not installed. Would you like installation instructions?"
+2. If user confirms, provide installation instructions:
+
+**macOS (Homebrew):**
+```bash
+brew install ast-grep
+```
+
+**Linux (Cargo):**
+```bash
+cargo install ast-grep
+```
+
+**npm (all platforms):**
+```bash
+npm install -g @ast-grep/cli
+```
+
+**Manual installation:**
+```bash
+# Download from GitHub releases
+# https://github.com/ast-grep/ast-grep/releases
+```
+
+3. After installation, verify with `ast-grep --version`
+4. Only proceed with ast-grep search after installation is confirmed
+
+**Do NOT attempt to run ast-grep commands if it's not installed.**
 
 ## When to Use This Skill
 
@@ -50,6 +93,26 @@ Use this skill when users:
 ## General Workflow
 
 Follow this process to help users write effective ast-grep rules:
+
+### Step 0: Verify Installation (MANDATORY)
+
+**Gate: ast-grep installed and verified before proceeding to Step 1.**
+
+Before doing anything else, check if ast-grep is installed:
+
+```bash
+ast-grep --version
+```
+
+**If NOT installed:**
+1. Stop immediately
+2. Inform the user that ast-grep is required
+3. Provide installation instructions (see Prerequisites Check section above)
+4. Do NOT proceed until user confirms installation
+
+**If installed:**
+- Note the version for reference
+- Proceed to Step 1
 
 ### Step 1: Understand the Query
 
@@ -467,6 +530,12 @@ These are excuses. Don't fall for them:
 ## Quick Workflow Summary
 
 ```
+STEP 0: VERIFY INSTALLATION (MANDATORY)
+├── Run ast-grep --version
+├── If NOT installed: provide instructions and STOP
+├── If installed: note version and proceed
+└── Gate: ast-grep installed and verified
+
 STEP 1: UNDERSTAND THE QUERY
 ├── What pattern to find?
 ├── Which programming language?
