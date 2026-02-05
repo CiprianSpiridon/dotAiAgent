@@ -1,6 +1,6 @@
 ---
 name: update-skill-learnings
-description: Extract learnings about skill creation/improvement from a session and propagate them to the central skill learnings file. Use when a session revealed patterns, anti-patterns, or insights about structuring skills. Invoke via /update-skill-learnings or after skill creation/improvement sessions.
+description: Extract learnings about skill creation/improvement from a session and propagate them to the central skill learnings file, then sync to appropriate skills. Use when a session revealed patterns, anti-patterns, or insights about structuring skills. Invoke via /update-skill-learnings or after skill creation/improvement sessions.
 ---
 
 <EXTREMELY-IMPORTANT>
@@ -42,12 +42,11 @@ This skill captures learnings about **creating and improving Claude Code skills*
 - Anti-patterns to avoid
 - Skill-specific learnings
 
-**Output:** Updates to `.claude/learnings/skill-learnings.md`
+**Output:** Updates to `.claude/learnings/skill-learnings.md` → synced to appropriate skills
 
 **Does NOT:**
 - Capture learnings about application code (use update-agent-learnings instead)
-- Propagate learnings to individual skill files automatically
-- Modify existing skills (only the central learnings file)
+- Modify existing skills without user confirmation
 
 ## When to Use
 

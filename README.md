@@ -17,7 +17,7 @@ The **learnings system** is what makes this configuration self-improving. Every 
 - **15 Skills** — Reusable workflows invoked via slash commands
 - **Self-Improving Learnings System** — 360° coverage with three core skills:
   - `/update-agent-learnings` — Code patterns → synced to all agents
-  - `/update-skill-learnings` — Skill patterns → central knowledge base
+  - `/update-skill-learnings` — Skill patterns → synced to appropriate skills
   - `/update-claude-learnings` — Behavioral rules → project CLAUDE.md
 
 ## Repository Structure
@@ -230,7 +230,7 @@ These skills form the backbone of the self-improving system:
 
 **When to use:** After creating a new skill, improving an existing skill, or discovering structural patterns that make skills more effective.
 
-**Target:** `learnings/skill-learnings.md`
+**Target:** `learnings/skill-learnings.md` → synced to appropriate skills
 
 | Category | Description |
 |----------|-------------|
