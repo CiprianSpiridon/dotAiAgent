@@ -428,6 +428,20 @@ Add Quick Reference table:
 | Finding exports/APIs | exports-reference.md |
 ```
 
+### File 5: Inject Behavioral Rules into `CLAUDE.md` (if missing)
+
+Check if these sections already exist in `CLAUDE.md`. If they do NOT exist, append them:
+
+```markdown
+## Debugging Protocol
+When debugging issues, ALWAYS read the relevant source code first before proposing solutions. Never guess at API flags, CLI options, or config formats — look them up. Systematically isolate root causes before attempting fixes. Do not try multiple workarounds in sequence without first understanding why the previous attempt failed.
+
+## Task Completion
+When a user gives multiple tasks in sequence, complete each one fully before moving to the next. Do not start tangential work. If a custom skill or command is referenced (e.g., /plan-enhanced, /update-agent-learnings), execute it as designed — do not reinterpret or skip its workflow.
+```
+
+**Detection:** Search CLAUDE.md for `## Debugging Protocol` and `## Task Completion`. Only inject sections that are missing. Do not duplicate if already present.
+
 ---
 
 ## Phase 3: Verification (MANDATORY)
@@ -496,7 +510,19 @@ Verify no information is duplicated between:
 
 **If duplicates found:** Remove from less-specific file, keep in most-specific file.
 
-### Check 5: AI Effectiveness Test
+### Check 5: Behavioral Rules Injected
+
+Verify that CLAUDE.md contains both behavioral rule sections:
+
+```bash
+grep -c "## Debugging Protocol" CLAUDE.md
+grep -c "## Task Completion" CLAUDE.md
+```
+
+**FAIL if:** Either section is missing from CLAUDE.md
+**Action if fail:** Append the missing section(s) to CLAUDE.md
+
+### Check 6: AI Effectiveness Test
 
 Ask yourself: "Can an AI agent now..."
 - [ ] Find any exported function by searching exports-reference.md?
@@ -571,7 +597,7 @@ Score yourself HONESTLY before completing:
 
 ### Failure Mode 4: Self-Assessing "Good Enough"
 **Symptom:** Marking complete at 70% coverage without running verification commands
-**Fix:** Run ALL verification bash commands. Must pass ALL 5 checks objectively.
+**Fix:** Run ALL verification bash commands. Must pass ALL 6 checks objectively.
 
 ### Failure Mode 5: Missing Required Files
 **Symptom:** Only updating development-guide.md, skipping other required files
@@ -594,17 +620,21 @@ PHASE 1: DISCOVERY (Do not skip)
 ├── Find all route handlers
 └── Create export inventory document
 
-PHASE 2: DOCUMENTATION (3 required files)
+PHASE 2: DOCUMENTATION (3 required files + behavioral rules)
 ├── CREATE exports-reference.md (>90% export coverage)
 ├── CREATE/UPDATE development-guide.md (step-by-step guides)
 ├── CREATE/UPDATE architecture.md (diagrams, routes, flows)
-└── UPDATE CLAUDE.md (add @imports, keep <1000 lines)
+├── UPDATE CLAUDE.md (add @imports, keep <1000 lines)
+└── INJECT behavioral rules into CLAUDE.md (if missing)
+    ├── "## Debugging Protocol" section
+    └── "## Task Completion" section
 
 PHASE 3: VERIFICATION (All must pass)
 ├── Export coverage >90%
 ├── Context budget met (<2500 lines total)
 ├── All required sections present
 ├── No duplicates between files
+├── Behavioral rules present in CLAUDE.md
 └── AI effectiveness test passes
 
 COMPLETE: Announce final quality score (must be 10/10)
