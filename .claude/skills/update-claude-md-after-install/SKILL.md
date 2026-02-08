@@ -1,10 +1,10 @@
 ---
 name: update-claude-md-after-install
-description: Use when user has just installed framework agents and CLAUDE.md contains generic examples - systematically discovers actual project patterns (custom commands, architecture decisions, team conventions) and updates CLAUDE.md and imported files with real project-specific information
+description: Use when user has just installed framework agents and CLAUDE.md contains generic examples - systematically discovers actual project patterns (custom commands, architecture decisions, team conventions) and updates CLAUDE.md and imported files with real project-specific information. Supports Laravel, Next.js, NestJS, Expo/React Native, and Node.js monorepo projects.
 ---
 
 <EXTREMELY-IMPORTANT>
-If you are about to update CLAUDE.md, you **ABSOLUTELY MUST** complete Phase 1 discovery first.
+If you are about to update CLAUDE.md, you **ABSOLUTELY MUST** complete Phase 0 (detection) and Phase 1 (discovery) first.
 
 **SKIPPING DISCOVERY = INCOMPLETE DOCUMENTATION = AI AGENT FAILURE**
 
@@ -17,20 +17,23 @@ This is not optional. You cannot rationalize "good enough" without running verif
 
 Before writing ANY documentation:
 
-1. ☐ Complete Phase 1 discovery checklist (ALL 6 steps)
-2. ☐ Create export inventory with counts
-3. ☐ Verify >90% coverage is achievable
-4. ☐ Announce: "Starting documentation update targeting 10/10"
+1. ☐ Complete Phase 0: Detect the framework
+2. ☐ Complete Phase 1: Framework-specific discovery (ALL steps)
+3. ☐ Create API surface inventory with counts
+4. ☐ Verify >90% coverage is achievable
+5. ☐ Announce: "Detected [Framework]. Starting documentation update targeting 10/10"
 
-**Writing docs without discovery = guaranteed gaps. Phase 1 is NON-NEGOTIABLE.**
+**Writing docs without discovery = guaranteed gaps. Phase 0 + Phase 1 are NON-NEGOTIABLE.**
 
 ## Overview
 
 After installing framework agents, CLAUDE.md and its imported files contain generic placeholder examples. This skill guides you to systematically discover the actual project patterns and update these files with real, project-specific information.
 
-**Core principle:** Discover exhaustively, then document. Analyze ALL exports before writing.
+**Core principle:** Discover exhaustively, then document. Analyze ALL exports/classes/routes before writing.
 
-**Quality target:** 10/10 AI agent effectiveness - documentation should enable an AI to implement features correctly on the first attempt.
+**Quality target:** 10/10 AI agent effectiveness — documentation should enable an AI to implement features correctly on the first attempt.
+
+**Supported frameworks:** Laravel, Next.js (App Router), NestJS, Expo/React Native (expo-router), Node.js monorepo.
 
 ## Context Budget Limits
 
@@ -42,12 +45,6 @@ Your documentation MUST fit within these constraints:
 | Each @import file | 500 | Lazy-loaded, can be detailed |
 | All imports combined | 1,500 | ~3k tokens = 1.5% of context |
 | **Total** | 2,500 | Leaves 98%+ for actual work |
-
-### Why This Matters
-
-- `@imports` are **lazy-loaded** - only loaded when relevant to current task
-- Even worst-case (all imports loaded) uses <2% of context
-- Exceeding limits = bloated context = degraded AI performance
 
 ### If Over Budget
 
@@ -62,508 +59,391 @@ AI agents are most effective when documentation provides:
 
 ### 1. Step-by-Step Implementation Guides
 
-Instead of just describing what exists, show HOW to add new things:
-
-❌ Poor (4/10): "We use Express.js with controllers"
-✅ Excellent (10/10):
+❌ Poor (4/10): "We use controllers for API endpoints"
+✅ Excellent (10/10): Numbered steps with actual code templates from the codebase
 
 ````markdown
-## Adding a New API Endpoint
+## Adding a New API Endpoint (Laravel)
 
-### Step 1: Choose the Router
-
-| Router         | Auth              | Use For        |
-| -------------- | ----------------- | -------------- |
-| publicRouter   | conditionalAuth() | Read-only GETs |
-| internalRouter | requireAuth()     | All mutations  |
-
-### Step 2: Create Handler
-
-```typescript
-export async function handleYourRoute(
-  context: ServerContext,
-  req: Request
-): Promise<Response> {
-  try {
-    const body = await req.json();
-    const result = await processData(body);
-    return new Response(JSON.stringify({ success: true, data: result }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-  }
+### Step 1: Create the Model
+```php
+class ModelName extends Model
+{
+    use BelongsToAccount, HasUuids;
+    protected $fillable = ['account_id', 'name'];
 }
 ```
+
+### Step 2: Create the Form Request
+### Step 3: Create the Controller (thin — delegates to Service)
+### Step 4: Register Routes in routes/api.php
 ````
 
-### 2. Exact Response Formats with TypeScript
+### 2. Response Formats
 
-❌ Poor: "API returns JSON with success flag"
-✅ Excellent:
+❌ Poor: "API returns JSON"
+✅ Excellent: Every response shape with types
 
 ```markdown
-### Success Response
-```typescript
+// NestJS — Interceptor wraps all responses:
 { success: true, data: T, timestamp: string }
-```
 
-### Error Response
-```typescript
-{ success: false, error: string, code?: string }
-// With status code 4xx or 5xx
-```
+// Error — Exception Filter formats:
+{ success: false, error: string, code: 'ERROR_CODE', details: [...] }
 ```
 
 ### 3. State Machines with Visual Diagrams
 
-❌ Poor: "Sessions have different statuses"
-✅ Excellent:
+```markdown
+## Gift Redemption State Machine
+```
+pending → fulfilled
+    ↓
+cancelled
+```
+
+| Current | Action | New State | Who |
+|---------|--------|-----------|-----|
+| pending | Admin approves | fulfilled | Admin |
+| pending | Admin cancels | cancelled | Admin |
+```
+
+### 4. Route/Screen Tables
+
+❌ Poor: "Routes are in the routes folder"
+✅ Excellent: Complete table with all routes
 
 ```markdown
-## Session State Machine
-
-```
-pending → active → decided → removed
-            ↓
-         orphaned
-```
-
-| Current | Action | New State |
-|---------|--------|-----------|
-| pending | User views | active |
-| active | User decides | decided |
-| active | Hook disconnects | orphaned |
-| decided | After 5 min | removed |
+| Route | File | Type | Purpose |
+|-------|------|------|---------|
+| `/` | app/page.tsx | Server Component | Home page |
+| `/dashboard/[id]` | app/dashboard/[id]/page.tsx | Server Component | User detail |
+| `/api/users` | app/api/users/route.ts | GET, POST | User CRUD |
 ```
 
-### 4. Complete API Route Tables
-
-❌ Poor: "Routes are in routes/ folder"
-✅ Excellent:
-
-```markdown
-| Route | Method | Handler | Description |
-|-------|--------|---------|-------------|
-| `/api/plan` | GET | handleGetPlan | Get current plan |
-| `/api/decision` | POST | handlePostDecision | Submit decision |
-| `/api/hub/register` | POST | inline | Register session |
-```
-
-### 5. Export Tables with Types
-
-❌ Poor: "Core package has parsing utilities"
-✅ Excellent:
+### 5. API Surface Tables
 
 ```markdown
 | Export | Type | Purpose |
 |--------|------|---------|
 | parseMarkdownToBlocks | function | Parse plan text → Block[] |
-| extractSections | function | Extract sections from blocks |
 | Plan | interface | Full plan with versions |
-| PlanVersion | interface | Single version snapshot |
 ```
 
 ## When to Use
-
-Use this skill when:
 
 - **Initial install:** User just installed agents and CLAUDE.md has generic examples
 - **Project start:** Beginning work on a project for the first time
 - **Key milestones:** After major architecture changes
 - **Periodic refresh:** User asks to "update docs" or "sync CLAUDE.md with project"
-- **Discovery gaps:** CLAUDE.md outdated or missing new project patterns
-
-**Symptoms:**
-
-- CLAUDE.md has comments like "customize for your project"
-- Generic examples that don't match actual code
-- Missing exports, routes, or state machines
-- New features added but not documented
 
 ---
 
 ## Common Rationalizations (All Wrong)
 
-If you catch yourself thinking any of these, STOP - you're about to fail:
-
 - "I already know this codebase" → STILL do Phase 1 discovery
 - "The exports haven't changed much" → STILL verify counts
 - "This is a small project" → STILL create all 3 required files
 - "80% coverage is good enough" → NO, 90% minimum
-- "I'll add the rest later" → NO, complete now
-- "The user didn't ask for full docs" → The skill requires 10/10
-- "Phase 1 takes too long" → Skipping it takes longer (rework)
-- "I can eyeball the exports" → Use bash commands, not memory
-
-**The skill requirements are not negotiable based on convenience.**
+- "I can eyeball the exports" → Use search commands, not memory
+- "Wrong framework won't matter" → Phase 0 detection is MANDATORY
 
 ---
 
-## Phase 1: Exhaustive Export Discovery (MANDATORY)
+## Phase 0: Framework Detection (MANDATORY)
 
-**Do NOT skip this phase.** Before writing ANY documentation, complete this discovery checklist.
+Before discovery, detect the framework. Check in this order (most specific first):
 
-### Step 1: Find All Package Entry Points
+| # | Check | Confirming Files | Framework |
+|---|-------|------------------|-----------|
+| 1 | `composer.json` + `artisan` | `app/Models/`, `routes/api.php` | **Laravel** |
+| 2 | `next.config.*` exists | `app/page.tsx` or `src/app/page.tsx` | **Next.js** |
+| 3 | `nest-cli.json` OR `@nestjs/core` in package.json | `src/**/*.module.ts` | **NestJS** |
+| 4 | `app.json` with `"expo"` key | `app/_layout.tsx` (expo-router) | **Expo/React Native** |
+| 5 | `package.json` + `packages/*/package.json` | `packages/*/src/index.ts` | **Node.js monorepo** |
 
-```bash
-# List all packages
-ls packages/*/package.json apps/*/package.json 2>/dev/null
+**Announce:** "Detected **[Framework]**. Proceeding with framework-specific discovery."
 
-# For each package, find main export file
-cat packages/*/package.json | jq -r '.name, .main, .exports'
-```
+**If multiple match** (e.g. monorepo containing Next.js app): use the most specific framework for the primary app. Document sub-packages separately if needed.
 
-**Create inventory table:**
+---
 
-| Package | Entry Point | Export Count |
-|---------|-------------|--------------|
-| @scope/core | src/index.ts | ? |
-| @scope/server | src/index.ts | ? |
+## Phase 1: Exhaustive Discovery (MANDATORY)
 
-### Step 2: Extract ALL Exports
+**Do NOT skip this phase.** Follow the steps for your detected framework.
 
-For EACH package entry point, run:
+### Laravel
 
-```bash
-# Count exports
-grep -c "^export" packages/core/src/index.ts
+1. **Models:** `ls app/Models/*.php` — list all, note relationships (`belongsTo`, `hasMany`, `belongsToMany`), scopes, casts
+2. **Services:** `ls app/Services/**/*.php` — list key public methods per service
+3. **Jobs:** `ls app/Jobs/*.php` — note what dispatches each (Observer, Command, other Job)
+4. **Observers:** `ls app/Observers/*.php` — which model, which events (`created`, `updated`)
+5. **Middleware:** `ls app/Http/Middleware/*.php` — note alias from `bootstrap/app.php`
+6. **API Resources:** `ls app/Http/Resources/*.php` — which model each transforms
+7. **Form Requests:** `ls app/Http/Requests/*.php` — key validation rules per request
+8. **Routes:** `grep "Route::" routes/api.php` — extract ALL methods, paths, controllers, middleware groups
+9. **Commands:** `ls app/Console/Commands/*.php` + schedules from `routes/console.php`
+10. **Also scan:** `app/Enums/`, `app/Traits/`, `app/Contracts/`, `app/Mail/`
 
-# List all exports (types, functions, constants)
-grep "^export" packages/core/src/index.ts
-```
+### Next.js (App Router)
 
-**Document in scratch file:**
+1. **Page routes:** `find app -name 'page.tsx' -o -name 'page.ts'` (or `src/app/`) — derive URL from path
+2. **API routes:** `find app/api -name 'route.ts'` — grep for exported `GET`, `POST`, `PUT`, `DELETE`, `PATCH`
+3. **Layouts:** `find app -name 'layout.tsx'` — note which routes each wraps
+4. **Server Actions:** `grep -r "'use server'" src --include="*.ts" --include="*.tsx"` — list all action functions
+5. **Client Components:** `grep -rl "'use client'" src` — identify interactive components
+6. **Middleware:** `find . -maxdepth 2 -name 'middleware.ts'` — note matcher config
+7. **Hooks:** `find src/hooks -name '*.ts' -o -name '*.tsx'` — list custom hooks
+8. **Types:** `grep -rh "^export interface\|^export type" src/types --include="*.ts"`
 
-```markdown
-## @scope/core exports (src/index.ts)
+### NestJS
 
-### Types/Interfaces
-- Plan
-- PlanVersion
-- Annotation
-...
+1. **Modules:** `find src -name '*.module.ts'` — note imports, exports, controllers, providers per module
+2. **Controllers:** `find src -name '*.controller.ts'` — grep `@Controller`, `@Get`, `@Post`, `@Put`, `@Delete`, `@Patch`
+3. **Services:** `find src -name '*.service.ts'` — list key methods
+4. **Entities:** `find src -path '*/entities/*.ts' -o -path '*/entity/*.ts'` — note properties, relationships
+5. **DTOs:** `find src -path '*/dtos/*.ts' -o -path '*/dto/*.ts'` — note class-validator decorators
+6. **Guards:** `find src -name '*.guard.ts'` — what they protect (JWT, roles, etc.)
+7. **Pipes:** `find src -name '*.pipe.ts'` — validation/transformation purpose
+8. **Interceptors:** `find src -name '*.interceptor.ts'` — logging, response transform, caching
+9. **Filters:** `find src -name '*.filter.ts'` — exception handling
+10. **Decorators:** `find src/common/decorators -name '*.ts'` — custom metadata annotations
 
-### Functions
-- parseMarkdownToBlocks
-- extractSections
-...
+### Expo/React Native (expo-router)
 
-### Constants
-- DEFAULT_PORT
-...
-```
+1. **Screen routes:** `find app -name '*.tsx' ! -name '_layout.tsx' ! -name '+not-found.tsx'` — derive URL from path
+2. **Layouts:** `find app -name '_layout.tsx'` — navigation type (Stack, Tabs, Drawer)
+3. **Components:** `find src/components -name '*.tsx'` — categorize: ui, shared, features
+4. **Hooks:** `find src -name 'use*.ts' -o -name 'use*.tsx'` — global + module-specific
+5. **Stores:** `find src -name '*Store.ts' -o -name '*store.ts'` — Zustand/Redux state + actions
+6. **API hooks:** `grep -rl "useQuery\|useMutation" src --include="*.ts"` — React Query hooks
+7. **Services:** `find src/services -name '*.ts'` — API client, storage, notifications
+8. **Types:** `grep -rh "^export interface\|^export type" src --include="*.ts" | sort | uniq`
+9. **Platform-specific:** `find . -name '*.ios.tsx' -o -name '*.android.tsx' -o -name '*.web.tsx'`
 
-### Step 3: Find Subpath Exports
+### Node.js Monorepo
 
-Many packages re-export from subpaths:
+1. **Packages:** `ls packages/*/package.json` — find entry points via `jq '.main, .exports'`
+2. **Exports:** `grep "^export" packages/*/src/index.ts` — count types, functions, constants
+3. **Subpath exports:** `find packages/*/src -name "index.ts"` + check `"exports"` in package.json
+4. **TypeScript interfaces:** `grep -rh "^export interface\|^export type" packages/*/src --include="*.ts"`
+5. **Route handlers:** `grep -r "router\.\|app\.\(get\|post\|put\|delete\)" --include="*.ts"`
+6. **State machines:** Look for entities with `status` or `state` fields
 
-```bash
-# Find all index.ts files that might have exports
-find packages/*/src -name "index.ts" | head -20
-
-# Check for subpath exports in package.json
-grep -A20 '"exports"' packages/*/package.json
-```
-
-**Common patterns:**
-- `@scope/server/hub` → `packages/server/src/hub/index.ts`
-- `@scope/server/storage` → `packages/server/src/storage/index.ts`
-
-**Add subpath exports to your inventory.**
-
-### Step 4: Find All TypeScript Interfaces
-
-```bash
-# Count interface definitions
-grep -r "^export interface" packages/*/src --include="*.ts" | wc -l
-
-# Count type definitions
-grep -r "^export type" packages/*/src --include="*.ts" | wc -l
-
-# List them all
-grep -rh "^export interface\|^export type" packages/*/src --include="*.ts" | sort | uniq
-```
-
-**Add ALL to your inventory.**
-
-### Step 5: Find All Route Handlers
-
-```bash
-# Find route definitions
-grep -r "url\.pathname\|router\.\|app\.\(get\|post\|put\|patch\|delete\)" --include="*.ts" | head -50
-
-# Find handler functions
-grep -r "handle\|Handler" --include="*.ts" packages/*/src | head -30
-```
-
-**Create routes table:**
-
-| Route | Method | Handler | File |
-|-------|--------|---------|------|
-
-### Step 6: Create Export Inventory Checklist
+### Inventory Checklist (all frameworks)
 
 Before proceeding to Phase 2, you MUST have:
 
-- [ ] List of ALL packages with export counts
-- [ ] List of ALL exported types/interfaces (with file paths)
-- [ ] List of ALL exported functions (with file paths)
-- [ ] List of ALL subpath exports
-- [ ] List of ALL route handlers (with HTTP methods)
-- [ ] List of ALL state machines (entities with status/state fields)
-
-**This inventory becomes your exports-reference.md source material.**
+- [ ] Complete list of all discoverable items with counts
+- [ ] All routes/screens mapped
+- [ ] All state machines identified (entities with status/state fields)
+- [ ] Import/use patterns noted
 
 ---
 
 ## Phase 2: Required Output Files
 
-You MUST create these 3 files. No exceptions.
+You MUST create/update these 3 files. No exceptions.
 
 ### File 1: `exports-reference.md` (REQUIRED)
 
-**Purpose:** Complete API surface documentation
 **Location:** `.claude/claude-md-refs/exports-reference.md`
-**Target size:** 300-400 lines
+**Target:** 300-500 lines | **Coverage:** >90% of discovered items
 
-**Template:**
+Use framework-appropriate sections:
 
-```markdown
-# Exports Reference
+#### Laravel
 
-Complete API surface for all packages.
+| Section | Table Columns |
+|---------|---------------|
+| Models | Model, Table, Key Relationships, Scopes |
+| Enums | Enum, Cases, Backing Type |
+| Services | Service, Key Methods, Purpose |
+| Contracts | Interface, Methods, Implementations |
+| Jobs | Job, Dispatched By, Purpose |
+| Console Commands | Command, Signature, Schedule |
+| Middleware | Alias, Class, Purpose |
+| Observers | Observer, Model, Triggers |
+| API Resources | Resource, Model, Purpose |
+| Form Requests | Request, Controller, Key Validation Rules |
+| Mailables | Mailable, View, Purpose |
+| Traits | Trait, Used By, Purpose |
 
-## @scope/package-name
+End with **Import Patterns**: `use App\Models\Toast;`, `use App\Services\ToastService;`
 
-### Models & Types
+#### Next.js
 
-| Export | Type | Purpose |
-|--------|------|---------|
-| ModelName | interface | Description |
-| TypeName | type | Description |
+| Section | Table Columns |
+|---------|---------------|
+| Page Routes | Route, File, Type (Server/Client), Purpose |
+| API Routes | Route, Method, File, Purpose |
+| Server Actions | Action, File, Parameters, Return |
+| Middleware | Middleware, File, Purpose |
+| Layouts | Layout, File, Scope |
+| Custom Hooks | Hook, File, Purpose |
+| Types | Type, File, Purpose |
 
-### Functions
+#### NestJS
 
-| Export | Purpose | Returns |
-|--------|---------|---------|
-| functionName | What it does | `ReturnType` |
+| Section | Table Columns |
+|---------|---------------|
+| Modules | Module, Exports, Purpose |
+| Controllers & Routes | Controller, Method, Route, Guards, Pipes |
+| Services | Service, Methods, Purpose |
+| Entities | Entity, Properties, Relationships |
+| DTOs | DTO, Fields, Validators |
+| Guards | Guard, Purpose, Scope |
+| Pipes | Pipe, Purpose, Applied |
+| Interceptors | Interceptor, Purpose, Scope |
+| Filters | Filter, Exception Type, Purpose |
+| Decorators | Decorator, Purpose, Usage |
 
-### Constants
+#### Expo/React Native
 
-| Export | Value | Purpose |
-|--------|-------|---------|
-| CONSTANT_NAME | value | What it's for |
+| Section | Table Columns |
+|---------|---------------|
+| Routes/Screens | Route, File, Dynamic Params, Layout, Purpose |
+| Components | Component, Path, Category (ui/shared/feature), Purpose |
+| Hooks | Hook, Path, Parameters, Returns, Purpose |
+| Services | Service, Path, Key Methods, Purpose |
+| Stores | Store, Path, State, Actions, Purpose |
+| API Hooks | Hook, Path, Type (Query/Mutation), Cache Key, Purpose |
+| Types | Type, Path, Key Fields, Purpose |
+| Constants | Constant, Path, Value/Type, Purpose |
+| Platform-Specific | Component, Platforms, Files, Purpose |
 
-## @scope/package-name/subpath
+#### Node.js Monorepo
 
-[Repeat structure for each subpath export]
+| Section | Table Columns |
+|---------|---------------|
+| @scope/package Types | Export, Type, Purpose |
+| @scope/package Functions | Export, Purpose, Returns |
+| @scope/package Constants | Export, Value, Purpose |
+| Subpath Exports | Subpath, Export, Purpose |
 
----
-
-## Import Patterns
-
-```typescript
-// Main exports
-import { Type, functionName } from '@scope/package';
-
-// Subpath exports
-import { SubType } from '@scope/package/subpath';
-```
-```
-
-**Completeness requirement:** >90% of discovered exports must appear in this file.
+End with **Import Patterns**: `import { Type } from '@scope/package';`
 
 ### File 2: `development-guide.md` (REQUIRED)
 
-**Purpose:** Step-by-step implementation guides
 **Location:** `.claude/claude-md-refs/development-guide.md`
-**Target size:** 400-500 lines
+**Target:** 300-500 lines
 
-**Must include these sections:**
+Must include framework-appropriate implementation guides:
 
-1. **Adding a New [Primary Entity]** - Step-by-step with actual code templates
-2. **Adding a New API Route** - With handler template from the actual codebase
-3. **Adding a New Integration** - Export/webhook patterns if applicable
-4. **Response Formats** - ALL response types with TypeScript interfaces
-5. **Error Handling** - Error patterns with examples from actual code
-6. **Testing Patterns** - How to test each component type (if tests exist)
+| Framework | Required Guides |
+|-----------|----------------|
+| **Laravel** | Adding a New API Endpoint (7 steps: Model → Migration → Form Request → Resource → Service → Controller → Routes), Response Format (`ApiResponse`), Adding Notifications (Observer → Job), Adding Commands, Multi-tenancy pattern, Testing |
+| **Next.js** | Adding a Page Route, Adding an API Route, Adding a Server Action, Adding Middleware, Data Fetching (Server vs Client), Response Format, Testing |
+| **NestJS** | Adding a Feature Module (8 steps: Module → Entity → DTO → Repository → Service → Controller → Register → Import), Creating Guards/Pipes/Interceptors, Response Format, Testing |
+| **Expo/RN** | Adding a Screen/Route (create in `app/`, implement, configure `_layout.tsx`), Adding API Calls (React Query: types → hook → component), Adding Navigation (Tab/Stack/Drawer), Adding State (Zustand + AsyncStorage), Testing, Environment Variables, Building (EAS) |
+| **Node.js** | Adding a Route Handler, Adding an Integration, Response Format, Error Handling, Testing |
+
+**All guides must use actual code from the codebase, not placeholders.**
 
 ### File 3: `architecture.md` (REQUIRED)
 
-**Purpose:** System structure and flows
 **Location:** `.claude/claude-md-refs/architecture.md`
-**Target size:** 300-400 lines
+**Target:** 300-500 lines
 
-**Must include these sections:**
+All frameworks need these core sections:
 
-1. **Package Dependency Graph** - ASCII diagram showing which packages depend on which
-2. **Primary State Machine(s)** - ASCII diagram + transition table for each entity with states
-3. **API Routes Table** - ALL routes with methods, handlers, descriptions
-4. **Data Flow Diagram** - Request lifecycle from entry to response
-5. **Storage Layout** - File/DB structure if applicable
-6. **Key Subsystems** - 1 paragraph + key files for each major subsystem
+1. **Dependency/Import Graph** — ASCII diagram showing how components depend on each other
+2. **Request/Data Lifecycle** — Flow from entry to response
+3. **Routes/Screens Table** — ALL routes with methods, handlers/files, auth requirements
+4. **State Machines** — ASCII diagram + transition table for each stateful entity
+5. **Key Subsystems** — 1 paragraph + key files per major subsystem
+
+Framework-specific additions:
+
+| Framework | Extra Sections |
+|-----------|---------------|
+| **Laravel** | Multi-tenancy tree (Account → scoped models), Observer → Job async flow, Docker services, Scheduled commands |
+| **Next.js** | Server/Client Component boundary, Caching strategy (ISR, revalidate), RSC payload flow |
+| **NestJS** | DI/IoC container flow, Module import/export graph, Request pipeline (Middleware → Guards → Interceptors → Pipes → Handler → Interceptors → Filters) |
+| **Expo/RN** | Navigation tree (Stack/Tab/Drawer nesting), Data flow layers (Screen → Hook → API Hook → Service → Backend), State management strategy table, Offline strategy, Authentication flow, Deep linking |
+| **Node.js** | Package dependency graph, Subpath export map |
 
 ### File 4: Update `CLAUDE.md`
 
-Add imports for all created files:
+Add imports and Quick Reference table:
 
 ```markdown
-@.claude/claude-md-refs/development-guide.md
+## Project Documentation
+
 @.claude/claude-md-refs/architecture.md
+@.claude/claude-md-refs/development-guide.md
 @.claude/claude-md-refs/exports-reference.md
-```
 
-Add Quick Reference table:
-
-```markdown
 ## Quick Documentation Reference
 
 | Need Help With | See File |
 |----------------|----------|
-| Adding features | development-guide.md |
-| Understanding system | architecture.md |
-| Finding exports/APIs | exports-reference.md |
+| Adding features, endpoints, screens | development-guide.md |
+| Understanding system structure, flows | architecture.md |
+| Finding models, services, hooks, exports | exports-reference.md |
 ```
-
-### File 5: Inject Behavioral Rules into `CLAUDE.md` (if missing)
-
-Check if these sections already exist in `CLAUDE.md`. If they do NOT exist, append them:
-
-```markdown
-## Debugging Protocol
-When debugging issues, ALWAYS read the relevant source code first before proposing solutions. Never guess at API flags, CLI options, or config formats — look them up. Systematically isolate root causes before attempting fixes. Do not try multiple workarounds in sequence without first understanding why the previous attempt failed.
-
-## Task Completion
-When a user gives multiple tasks in sequence, complete each one fully before moving to the next. Do not start tangential work. If a custom skill or command is referenced (e.g., /plan-enhanced, /update-agent-learnings), execute it as designed — do not reinterpret or skip its workflow.
-```
-
-**Detection:** Search CLAUDE.md for `## Debugging Protocol` and `## Task Completion`. Only inject sections that are missing. Do not duplicate if already present.
 
 ---
 
 ## Phase 3: Verification (MANDATORY)
 
-Do NOT mark this skill complete until ALL checks pass.
+Do NOT mark complete until ALL checks pass.
 
-### Check 1: Export Coverage (>90%)
+### Check 1: API Surface Coverage (>90%)
 
-```bash
-# Count actual exports (adjust paths for project)
-ACTUAL=$(grep -rh "^export" packages/*/src/index.ts 2>/dev/null | wc -l)
+Run framework-appropriate count:
 
-# Count documented exports (table rows in exports-reference.md)
-DOCUMENTED=$(grep -c "^|" .claude/claude-md-refs/exports-reference.md 2>/dev/null || echo 0)
+| Framework | Actual Count Command | Documented Count |
+|-----------|---------------------|------------------|
+| Laravel | `find app -name "*.php" -type f \| wc -l` | `grep -c "^\|" .claude/claude-md-refs/exports-reference.md` |
+| Next.js | `find app -name 'page.tsx' -o -name 'route.ts' \| wc -l` | Count route table rows |
+| NestJS | `find src -name '*.module.ts' -o -name '*.controller.ts' -o -name '*.service.ts' \| wc -l` | Count module/controller/service rows |
+| Expo/RN | `find app -name '*.tsx' ! -name '_layout.tsx' \| wc -l` + `find src -name 'use*.ts' \| wc -l` | Count route + hook rows |
+| Node.js | `grep -rh "^export" packages/*/src/index.ts \| wc -l` | Count export table rows |
 
-echo "Export coverage: $DOCUMENTED documented / $ACTUAL actual"
-```
-
-**FAIL if:** Coverage < 90%
-**Action if fail:** Go back to Phase 1, find missing exports, add to exports-reference.md
+**FAIL if:** Coverage < 90%. Go back to Phase 1.
 
 ### Check 2: Context Budget
 
 ```bash
-# Count lines in each file
-wc -l CLAUDE.md
-wc -l .claude/claude-md-refs/*.md
-
-# Calculate total
-TOTAL=$(cat CLAUDE.md .claude/claude-md-refs/*.md 2>/dev/null | wc -l)
-echo "Total lines: $TOTAL (max: 2500)"
+wc -l CLAUDE.md .claude/claude-md-refs/*.md
 ```
 
-**FAIL if:**
-- CLAUDE.md > 1,000 lines
-- Any single import file > 500 lines
-- Total imports > 1,500 lines
-- Grand total > 2,500 lines
-
-**Action if fail:** Consolidate sections, convert prose to tables, use "reference by path" for long code examples
+**FAIL if:** CLAUDE.md > 1,000 lines, any import > 500, total > 2,500.
 
 ### Check 3: Required Sections
 
-**In exports-reference.md:**
-- [ ] Has table for EACH discovered package
-- [ ] Has "Import Patterns" section with code examples
-- [ ] Every table has Export, Type/Purpose columns
-
-**In development-guide.md:**
-- [ ] Has "Adding a New X" with numbered steps
-- [ ] Has actual code templates (not just descriptions)
-- [ ] Has response format TypeScript interfaces
-
-**In architecture.md:**
-- [ ] Has package dependency ASCII diagram
-- [ ] Has at least one state machine diagram (if any stateful entities exist)
-- [ ] Has API routes table with ALL routes
-- [ ] Has data flow description
+**exports-reference.md:** Has table for EACH category, has Import/Use Patterns section
+**development-guide.md:** Has "Adding a New X" with numbered steps and actual code
+**architecture.md:** Has dependency graph, request lifecycle, route/screen table, state machines (if any)
 
 ### Check 4: No Duplicates
 
-Verify no information is duplicated between:
-- CLAUDE.md and import files
-- development-guide.md and architecture.md
-- exports-reference.md and other files
+No information duplicated between CLAUDE.md and import files, or between import files.
 
-**If duplicates found:** Remove from less-specific file, keep in most-specific file.
+### Check 5: AI Effectiveness Test
 
-### Check 5: Behavioral Rules Injected
-
-Verify that CLAUDE.md contains both behavioral rule sections:
-
-```bash
-grep -c "## Debugging Protocol" CLAUDE.md
-grep -c "## Task Completion" CLAUDE.md
-```
-
-**FAIL if:** Either section is missing from CLAUDE.md
-**Action if fail:** Append the missing section(s) to CLAUDE.md
-
-### Check 6: AI Effectiveness Test
-
-Ask yourself: "Can an AI agent now..."
-- [ ] Find any exported function by searching exports-reference.md?
+Can an AI agent now:
+- [ ] Find any model/service/hook/export by searching exports-reference.md?
 - [ ] Add a new feature by following development-guide.md step-by-step?
-- [ ] Understand the system architecture by reading architecture.md?
+- [ ] Understand the system architecture from architecture.md?
 - [ ] Know which file to read for any task from CLAUDE.md Quick Reference?
 
-**If ANY answer is "no", the documentation is incomplete. Fix it.**
+**If ANY answer is "no", the documentation is incomplete.**
 
 ---
 
 ## Quality Checklist (Must Score 10/10)
 
-Score yourself HONESTLY before completing:
+| Category | 0 points | 1 point | 2 points |
+|----------|----------|---------|----------|
+| **API Surface Coverage** | <50% documented | 50-89% | >90% in tables |
+| **Implementation Guidance** | Describes what exists | Shows file locations | Step-by-step with code templates |
+| **State/Workflow Diagrams** | No diagrams | Lists states | ASCII diagram + transition table |
+| **Routes/Screens** | No route docs | Lists some routes | Complete table with methods, auth |
+| **Context Efficiency** | Over budget | Within budget, has duplication | Within budget, no duplication |
 
-### Export Coverage (0-2 points)
-- [ ] **0 points:** <50% of exports documented
-- [ ] **1 point:** 50-89% of exports documented
-- [ ] **2 points:** >90% of exports documented in tables
-
-### Implementation Guidance (0-2 points)
-- [ ] **0 points:** Just describes what exists ("We have controllers")
-- [ ] **1 point:** Shows file locations ("Controllers are in src/")
-- [ ] **2 points:** Step-by-step guide with actual code templates
-
-### State/Workflow Diagrams (0-2 points)
-- [ ] **0 points:** No diagrams
-- [ ] **1 point:** Lists states ("pending, active, completed")
-- [ ] **2 points:** ASCII diagram + transition table + constraints
-
-### API Surface (0-2 points)
-- [ ] **0 points:** No route documentation
-- [ ] **1 point:** Lists some routes
-- [ ] **2 points:** Complete route table with methods, handlers, descriptions
-
-### Context Efficiency (0-2 points)
-- [ ] **0 points:** Over budget (>2,500 lines total)
-- [ ] **1 point:** Within budget but has duplication
-- [ ] **2 points:** Within budget, no duplication, tables over prose
-
-**Total: 10/10 required to complete this skill**
+**Total: 10/10 required to complete this skill.**
 
 ---
 
@@ -571,12 +451,12 @@ Score yourself HONESTLY before completing:
 
 | Mistake | Fix |
 |---------|-----|
-| Skipping export discovery | Phase 1 is MANDATORY - do it first |
-| Generic descriptions | Use actual code examples from the codebase |
+| Skipping framework detection | Phase 0 prevents using wrong discovery commands |
+| Using Node.js patterns for Laravel | PHP has classes/traits/models, not exports/packages |
+| Using controller patterns for Next.js | Next.js uses file-based routing, not controller classes |
+| Generic descriptions | Every code example must come from the actual codebase |
 | Missing exports-reference.md | This file is REQUIRED, not optional |
-| State list without diagram | Add ASCII diagram + transition table |
-| Over context budget | Convert prose to tables, reference by path |
-| Duplicated information | Keep info in ONE file only |
+| Over context budget | Tables > prose, reference by path for code >30 lines |
 | Self-assessing "good enough" | Use objective verification checks |
 
 ---
@@ -584,27 +464,27 @@ Score yourself HONESTLY before completing:
 ## Failure Modes
 
 ### Failure Mode 1: Skipping Discovery
-**Symptom:** Writing docs immediately, missing 40%+ of exports
+**Symptom:** Writing docs immediately, missing 40%+ of items
 **Fix:** Phase 1 is MANDATORY. Complete inventory before writing ANY documentation.
 
-### Failure Mode 2: Generic Templates
+### Failure Mode 2: Wrong Framework Detection
+**Symptom:** Using `grep "^export"` on a Laravel project, or scanning `app/Models/` on a Next.js project
+**Fix:** Phase 0 detection is MANDATORY. Check files in priority order.
+
+### Failure Mode 3: Generic Templates
 **Symptom:** Copy-pasting skill templates without actual project code
 **Fix:** Every code example must come from the actual codebase. No placeholders.
 
-### Failure Mode 3: Over Budget
-**Symptom:** CLAUDE.md > 1000 lines, context bloat, AI performance degraded
+### Failure Mode 4: Over Budget
+**Symptom:** CLAUDE.md > 1000 lines, context bloat
 **Fix:** Tables > prose, reference by path for code >30 lines, consolidate sections.
 
-### Failure Mode 4: Self-Assessing "Good Enough"
+### Failure Mode 5: Self-Assessing "Good Enough"
 **Symptom:** Marking complete at 70% coverage without running verification commands
-**Fix:** Run ALL verification bash commands. Must pass ALL 6 checks objectively.
-
-### Failure Mode 5: Missing Required Files
-**Symptom:** Only updating development-guide.md, skipping other required files
-**Fix:** ALL 3 files required: exports-reference.md, development-guide.md, architecture.md
+**Fix:** Run ALL verification checks. Must pass ALL 5 objectively.
 
 ### Failure Mode 6: No State Machines
-**Symptom:** Listing states ("pending, active, decided") without visual diagram
+**Symptom:** Listing states without visual diagram
 **Fix:** Add ASCII diagram + transition table for every entity with states.
 
 ---
@@ -612,29 +492,31 @@ Score yourself HONESTLY before completing:
 ## Quick Workflow Summary
 
 ```
-PHASE 1: DISCOVERY (Do not skip)
-├── Find all package entry points
-├── Extract ALL exports (types, functions, constants)
-├── Find subpath exports
-├── Find all TypeScript interfaces
-├── Find all route handlers
-└── Create export inventory document
+PHASE 0: DETECT FRAMEWORK
+├── Check composer.json+artisan → Laravel
+├── Check next.config.* → Next.js
+├── Check nest-cli.json/@nestjs/core → NestJS
+├── Check app.json(expo)+_layout.tsx → Expo/React Native
+├── Check packages/*/package.json → Node.js monorepo
+└── Announce detected framework
 
-PHASE 2: DOCUMENTATION (3 required files + behavioral rules)
-├── CREATE exports-reference.md (>90% export coverage)
-├── CREATE/UPDATE development-guide.md (step-by-step guides)
-├── CREATE/UPDATE architecture.md (diagrams, routes, flows)
-├── UPDATE CLAUDE.md (add @imports, keep <1000 lines)
-└── INJECT behavioral rules into CLAUDE.md (if missing)
-    ├── "## Debugging Protocol" section
-    └── "## Task Completion" section
+PHASE 1: DISCOVERY (framework-specific, do not skip)
+├── Scan all classes/files/exports per framework steps
+├── Map all routes/screens
+├── Identify state machines
+└── Create inventory with counts
 
-PHASE 3: VERIFICATION (All must pass)
-├── Export coverage >90%
+PHASE 2: DOCUMENTATION (3 required files)
+├── CREATE exports-reference.md (>90% coverage, framework tables)
+├── CREATE development-guide.md (step-by-step, actual code)
+├── CREATE architecture.md (diagrams, routes, flows)
+└── UPDATE CLAUDE.md (add @imports, keep <1000 lines)
+
+PHASE 3: VERIFICATION (all must pass)
+├── API surface coverage >90%
 ├── Context budget met (<2500 lines total)
 ├── All required sections present
 ├── No duplicates between files
-├── Behavioral rules present in CLAUDE.md
 └── AI effectiveness test passes
 
 COMPLETE: Announce final quality score (must be 10/10)
@@ -644,16 +526,16 @@ COMPLETE: Announce final quality score (must be 10/10)
 
 ## Completion Announcement
 
-When done, announce:
-
 ```
 Documentation update complete.
 
+**Framework:** [Laravel/Next.js/NestJS/Expo/Node.js monorepo]
+
 **Quality Score: X/10**
-- Export Coverage: X/2 (Y% of Z exports documented)
+- API Surface Coverage: X/2 (Y% of Z items documented)
 - Implementation Guidance: X/2
 - State/Workflow Diagrams: X/2
-- API Surface: X/2
+- Routes/Screens: X/2
 - Context Efficiency: X/2
 
 **Files created/updated:**
@@ -668,19 +550,4 @@ Documentation update complete.
 
 ---
 
-## References (Optional)
-
-For complex projects, create detailed reference docs in `.claude/skills/update-claude-md-after-install/references/`:
-
-| Reference | Purpose |
-|-----------|---------|
-| `export-discovery-patterns.md` | Advanced grep/find patterns for different project types |
-| `monorepo-strategies.md` | Handling 10+ packages efficiently |
-| `legacy-codebase-tips.md` | Projects without TypeScript or modern tooling |
-| `framework-specific-guides.md` | Laravel, Next.js, Express, etc. specifics |
-
-**These are optional.** Only create if the project complexity warrants it.
-
----
-
-_This skill ensures documentation enables AI agents to implement features correctly on the first attempt._
+_This skill ensures documentation enables AI agents to implement features correctly on the first attempt — across Laravel, Next.js, NestJS, Expo/React Native, and Node.js monorepo projects._
