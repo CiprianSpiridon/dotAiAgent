@@ -94,9 +94,11 @@ Check for these indicator files:
 | **Ruby** | `Gemfile`, `Gemfile.lock` |
 | **Java/Kotlin** | `pom.xml`, `build.gradle`, `build.gradle.kts` |
 | **PHP** | `composer.json`, `composer.lock` |
+| **Swift/iOS** | `Package.swift`, `*.xcodeproj`, `*.xcworkspace`, `Podfile` |
 | **.NET** | `*.csproj`, `*.sln`, `nuget.config` |
+| **React Native** | `app.json` (with `expo` key), `metro.config.js`, `react-native.config.js`, `eas.json` |
 | **Build** | `Makefile`, `Dockerfile`, `docker-compose.yml`, `docker-compose.yaml` |
-| **Infra** | `*.tf` files, `kubernetes/`, `helm/`, `pulumi/` |
+| **Infra** | `*.tf` files, `kubernetes/`, `helm/`, `pulumi/`, `serverless.yml` |
 | **Monorepo** | `lerna.json`, `nx.json`, `turbo.json`, `pnpm-workspace.yaml` |
 
 ## Step 2: Detect Frameworks and Services
@@ -112,6 +114,20 @@ Read dependency files to identify frameworks:
 - `composer.json` → check `require` and `require-dev`
 - `go.mod` → check `require` block
 
+Check for framework-specific indicators:
+
+| Framework | Detection |
+|-----------|-----------|
+| **Next.js** | `next` in package.json deps, `next.config.js`/`next.config.mjs`/`next.config.ts` |
+| **React (Vite)** | `vite` + `react` in package.json deps, `vite.config.ts`/`vite.config.js` |
+| **Expo/React Native** | `expo` in package.json deps, `app.json` with `expo` key, `eas.json` |
+| **Express** | `express` in package.json deps |
+| **Laravel** | `laravel/framework` in composer.json require, `artisan` file in root |
+| **Magento** | `magento/framework` in composer.json require, `bin/magento` |
+| **Django** | `django` in Python deps |
+| **FastAPI** | `fastapi` in Python deps |
+| **Tailwind CSS** | `tailwindcss` in package.json deps, `tailwind.config.js`/`tailwind.config.ts` |
+
 Check for service integrations:
 
 | Service | Detection |
@@ -122,6 +138,7 @@ Check for service integrations:
 | **AWS** | `aws-cdk` in deps, `samconfig.toml`, `serverless.yml` |
 | **Vercel** | `vercel.json`, `@vercel/*` packages |
 | **Supabase** | `supabase/` directory, `@supabase/*` packages |
+| **Firebase** | `firebase.json`, `@firebase/*` or `firebase-admin` in deps |
 
 ## Step 3: Check Existing Settings
 
@@ -213,6 +230,22 @@ Only include commands for tools actually detected in the project.
 | `package-lock.json` | `npm list`, `npm view`, `npm outdated` |
 | TypeScript (`tsconfig.json`) | `tsc --version` |
 
+#### Node.js Frameworks
+
+| If Detected | Add These Commands |
+|-------------|-------------------|
+| Next.js (`next` in deps) | `npx next --version`, `npx next info` |
+| Expo/React Native (`expo` in deps) | `npx expo --version`, `npx expo config`, `npx eas --version` |
+| Vite (`vite` in deps) | `npx vite --version` |
+| Tailwind CSS (`tailwindcss` in deps) | `npx tailwindcss --help` |
+
+#### PHP Frameworks
+
+| If Detected | Add These Commands |
+|-------------|-------------------|
+| Laravel (`artisan` file) | `php artisan --version`, `php artisan route:list`, `php artisan config:show` |
+| Magento (`bin/magento`) | `php bin/magento --version`, `php bin/magento module:status` |
+
 #### Go
 
 | If Detected | Add These Commands |
@@ -286,18 +319,23 @@ Add documentation domains for detected frameworks:
 | **FastAPI** | `fastapi.tiangolo.com` |
 | **React** | `react.dev` |
 | **Next.js** | `nextjs.org` |
+| **Expo/React Native** | `docs.expo.dev`, `reactnative.dev` |
+| **Vite** | `vite.dev` |
+| **Tailwind CSS** | `tailwindcss.com` |
 | **Vue** | `vuejs.org` |
 | **Angular** | `angular.dev` |
 | **Svelte** | `svelte.dev` |
 | **Express** | `expressjs.com` |
 | **Rails** | `guides.rubyonrails.org`, `api.rubyonrails.org` |
 | **Laravel** | `laravel.com` |
+| **Magento** | `developer.adobe.com` |
 | **Go** | `pkg.go.dev` |
 | **Rust** | `docs.rs`, `doc.rust-lang.org` |
 | **Docker** | `docs.docker.com` |
 | **Kubernetes** | `kubernetes.io` |
 | **Terraform** | `registry.terraform.io` |
 | **AWS CDK** | `docs.aws.amazon.com` |
+| **Firebase** | `firebase.google.com` |
 
 Always include general-purpose domains:
 
