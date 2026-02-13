@@ -1,16 +1,16 @@
 ---
 name: update-claude-settings
-description: Use when setting up a new project, auditing existing settings, or determining which read-only bash commands to allow. Analyzes the repository to detect tech stack, build tools, frameworks, services, and monorepo structure, then generates recommended Claude Code settings.json permissions and MCP server suggestions. Invoke via /update-claude-settings or when user says "audit settings", "setup permissions", "configure claude settings".
+description: Use when setting up a new project, auditing existing settings, or determining which read-only bash commands to allow. Analyzes the repository to detect tech stack, build tools, frameworks, services, and monorepo structure, then generates recommended Claude Code settings.local.json permissions and MCP server suggestions. Invoke via /update-claude-settings or when user says "audit settings", "setup permissions", "configure claude settings".
 ---
 
 <EXTREMELY-IMPORTANT>
 Before generating ANY settings recommendations, you **ABSOLUTELY MUST**:
 
 1. Detect the actual tech stack from lock files and config files (not assumptions)
-2. Read existing .claude/settings.json and .mcp.json to understand current state
-3. Only recommend READ-ONLY commands (never install, build, run, write, or delete)
+2. Read existing .claude/settings.local.json and .mcp.json to understand current state
+3. Include both read-only AND development commands appropriate for each detected tool
 4. Only include commands for tools actually detected in the project
-5. Never include absolute paths or user-specific paths in recommendations
+5. Never include absolute paths, user-specific paths, or destructive system commands
 
 **Generating settings without detection = wrong package manager commands, missing tools, security risks**
 
@@ -28,7 +28,7 @@ Before generating ANY settings, you **MUST** complete this checklist:
 3. ☐ Read dependency files to identify frameworks and libraries
 4. ☐ Check for monorepo indicators (lerna.json, nx.json, turbo.json, pnpm-workspace.yaml)
 5. ☐ Check for service integrations (Sentry, Linear, etc.)
-6. ☐ Read existing .claude/settings.json (if it exists)
+6. ☐ Read existing .claude/settings.local.json (if it exists)
 7. ☐ Read existing .mcp.json (if it exists)
 8. ☐ Announce: "Detected [stack]: generating settings for [N] command categories and [M] WebFetch domains"
 
@@ -36,12 +36,13 @@ Before generating ANY settings, you **MUST** complete this checklist:
 
 ## Overview
 
-Analyze a repository to generate recommended Claude Code `settings.json` permissions for read-only commands. Detects the tech stack, build tools, frameworks, services, and monorepo structure to produce accurate, project-specific recommendations.
+Analyze a repository to generate recommended Claude Code `settings.local.json` permissions for read-only commands. Detects the tech stack, build tools, frameworks, services, and monorepo structure to produce accurate, project-specific recommendations.
 
 **What this skill does:**
 - Detects languages, package managers, frameworks, and build tools from config/lock files
 - Detects service integrations (Sentry, Linear, etc.)
-- Generates a complete `settings.json` with grouped, commented permissions
+- Generates a complete `settings.local.json` with both read-only AND development commands
+- Includes framework-specific commands Claude needs (artisan, next, expo, manage.py, cargo, etc.)
 - Suggests relevant WebFetch domains for framework documentation
 - Suggests MCP server configurations when applicable
 - Merges with existing settings if present
@@ -49,7 +50,7 @@ Analyze a repository to generate recommended Claude Code `settings.json` permiss
 **What this skill does NOT do:**
 - Install or configure any tools
 - Modify code or project structure
-- Include write/modify commands in permissions (read-only only)
+- Include destructive system commands (rm -rf, format, etc.)
 - Guess at tools not detected in the project
 - Include user-specific or absolute paths
 
@@ -66,7 +67,7 @@ Analyze a repository to generate recommended Claude Code `settings.json` permiss
 
 - **Empty repository** — no files to detect; ask user to describe their stack instead
 - **User wants to run commands** — this skill generates permission config, it doesn't execute project commands
-- **User wants to modify code** — this skill only produces settings.json and .mcp.json recommendations
+- **User wants to modify code** — this skill only produces settings.local.json and .mcp.json recommendations
 - **Settings are already comprehensive** — if existing settings cover the detected stack, say so
 
 ## Step 1: Detect Tech Stack
@@ -148,7 +149,7 @@ Read existing configuration files:
 
 ```bash
 # Check existing Claude Code settings
-cat .claude/settings.json 2>/dev/null || echo "No existing settings"
+cat .claude/settings.local.json 2>/dev/null || echo "No existing settings"
 
 # Check existing MCP config
 cat .mcp.json 2>/dev/null || echo "No existing .mcp.json"
@@ -207,90 +208,124 @@ These read-only commands are safe and useful for any project:
 
 ### Stack-Specific Commands
 
-Only include commands for tools actually detected in the project.
+Only include commands for tools actually detected in the project. Each section is split into **read-only** (safe to auto-allow) and **development** (needed for Claude to work effectively with the framework) commands.
 
 #### Python
 
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| Any Python | `python --version`, `python3 --version` |
-| `poetry.lock` | `poetry show`, `poetry env info` |
-| `uv.lock` | `uv pip list`, `uv tree` |
-| `Pipfile.lock` | `pipenv graph` |
-| `requirements.txt` (no other lock) | `pip list`, `pip show`, `pip freeze` |
+| If Detected | Read-Only Commands | Development Commands |
+|-------------|-------------------|---------------------|
+| Any Python | `python --version`, `python3 --version` | `python`, `python3` |
+| `poetry.lock` | `poetry show`, `poetry env info` | `poetry install`, `poetry add`, `poetry remove`, `poetry run`, `poetry lock` |
+| `uv.lock` | `uv pip list`, `uv tree` | `uv pip install`, `uv add`, `uv remove`, `uv run`, `uv sync`, `uv lock` |
+| `Pipfile.lock` | `pipenv graph` | `pipenv install`, `pipenv run` |
+| `requirements.txt` (no other lock) | `pip list`, `pip show`, `pip freeze` | `pip install` |
+| pytest detected | — | `pytest`, `python -m pytest` |
+| mypy/pyright detected | — | `mypy`, `pyright` |
+| ruff detected | — | `ruff check`, `ruff format` |
+
+**Python frameworks:**
+
+| If Detected | Development Commands |
+|-------------|---------------------|
+| **Django** | `python manage.py`, `django-admin` (e.g., `manage.py runserver`, `manage.py migrate`, `manage.py makemigrations`, `manage.py test`, `manage.py shell`, `manage.py createsuperuser`) |
+| **FastAPI** | `uvicorn`, `fastapi` (e.g., `uvicorn main:app`, `fastapi dev`) |
+| **Flask** | `flask run`, `flask shell` |
+| **Celery** | `celery -A`, `celery worker`, `celery beat` |
+| **Alembic** | `alembic upgrade`, `alembic downgrade`, `alembic revision`, `alembic history` |
 
 #### Node.js
 
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| Any Node.js | `node --version` |
-| `pnpm-lock.yaml` | `pnpm list`, `pnpm why` |
-| `yarn.lock` | `yarn list`, `yarn info`, `yarn why` |
-| `bun.lockb` | `bun --version` |
-| `package-lock.json` | `npm list`, `npm view`, `npm outdated` |
-| TypeScript (`tsconfig.json`) | `tsc --version` |
+| If Detected | Read-Only Commands | Development Commands |
+|-------------|-------------------|---------------------|
+| Any Node.js | `node --version` | `node` |
+| `pnpm-lock.yaml` | `pnpm list`, `pnpm why` | `pnpm install`, `pnpm add`, `pnpm remove`, `pnpm run`, `pnpm exec`, `pnpm dlx`, `pnpm test` |
+| `yarn.lock` | `yarn list`, `yarn info`, `yarn why` | `yarn install`, `yarn add`, `yarn remove`, `yarn run`, `yarn dlx`, `yarn test` |
+| `bun.lockb` | `bun --version` | `bun install`, `bun add`, `bun remove`, `bun run`, `bun test`, `bunx` |
+| `package-lock.json` | `npm list`, `npm view`, `npm outdated` | `npm install`, `npm run`, `npm test`, `npm exec`, `npx` |
+| TypeScript (`tsconfig.json`) | `tsc --version` | `tsc`, `tsc --noEmit`, `npx tsc` |
+| ESLint detected | — | `eslint`, `npx eslint` |
+| Prettier detected | — | `prettier`, `npx prettier` |
+| Vitest detected | — | `vitest`, `npx vitest` |
+| Jest detected | — | `jest`, `npx jest` |
 
-#### Node.js Frameworks
+**Node.js frameworks:**
 
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| Next.js (`next` in deps) | `npx next --version`, `npx next info` |
-| Expo/React Native (`expo` in deps) | `npx expo --version`, `npx expo config`, `npx eas --version` |
-| Vite (`vite` in deps) | `npx vite --version` |
-| Tailwind CSS (`tailwindcss` in deps) | `npx tailwindcss --help` |
-
-#### PHP Frameworks
-
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| Laravel (`artisan` file) | `php artisan --version`, `php artisan route:list`, `php artisan config:show` |
-| Magento (`bin/magento`) | `php bin/magento --version`, `php bin/magento module:status` |
-
-#### Go
-
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| `go.mod` | `go version`, `go list`, `go mod graph`, `go env` |
-
-#### Rust
-
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| `Cargo.toml` | `rustc --version`, `cargo --version`, `cargo tree`, `cargo metadata` |
-
-#### Ruby
-
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| `Gemfile` | `ruby --version`, `bundle list`, `bundle show` |
-
-#### Java/Kotlin
-
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| `pom.xml` | `java --version`, `mvn --version`, `mvn dependency:tree` |
-| `build.gradle` / `build.gradle.kts` | `java --version`, `gradle --version`, `gradle dependencies` |
+| If Detected | Development Commands |
+|-------------|---------------------|
+| **Next.js** | `npx next build`, `npx next dev`, `npx next start`, `npx next lint`, `npx next info` |
+| **Expo/React Native** | `npx expo start`, `npx expo prebuild`, `npx expo install`, `npx expo config`, `npx expo lint`, `eas build`, `eas update`, `eas submit`, `npx eas --version` |
+| **Vite** | `npx vite`, `npx vite build`, `npx vite preview` |
+| **Express** | (uses `node` and package manager `run` commands — no additional CLI) |
+| **Tailwind CSS** | `npx tailwindcss`, `npx tailwindcss --watch` |
+| **Storybook** | `npx storybook dev`, `npx storybook build` |
+| **Prisma** | `npx prisma generate`, `npx prisma migrate`, `npx prisma db push`, `npx prisma db pull`, `npx prisma studio`, `npx prisma format` |
+| **Drizzle** | `npx drizzle-kit generate`, `npx drizzle-kit migrate`, `npx drizzle-kit push`, `npx drizzle-kit studio` |
 
 #### PHP
 
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| `composer.json` | `php --version`, `composer show`, `composer info` |
+| If Detected | Read-Only Commands | Development Commands |
+|-------------|-------------------|---------------------|
+| `composer.json` | `php --version`, `composer show`, `composer info` | `php`, `composer install`, `composer require`, `composer remove`, `composer update`, `composer dump-autoload` |
+| PHPUnit detected | — | `phpunit`, `./vendor/bin/phpunit` |
+| PHPStan detected | — | `phpstan`, `./vendor/bin/phpstan` |
+
+**PHP frameworks:**
+
+| If Detected | Development Commands |
+|-------------|---------------------|
+| **Laravel** | `php artisan` (e.g., `artisan migrate`, `artisan make:model`, `artisan make:controller`, `artisan make:migration`, `artisan route:list`, `artisan config:show`, `artisan test`, `artisan tinker`, `artisan queue:work`, `artisan schedule:run`, `artisan db:seed`, `artisan cache:clear`, `artisan key:generate`, `artisan serve`) |
+| **Magento** | `php bin/magento` (e.g., `bin/magento setup:upgrade`, `bin/magento cache:flush`, `bin/magento module:status`, `bin/magento indexer:reindex`, `bin/magento setup:di:compile`) |
+| **Symfony** | `php bin/console` (e.g., `bin/console doctrine:migrations:migrate`, `bin/console make:entity`, `bin/console cache:clear`) |
+
+#### Go
+
+| If Detected | Read-Only Commands | Development Commands |
+|-------------|-------------------|---------------------|
+| `go.mod` | `go version`, `go list`, `go mod graph`, `go env` | `go build`, `go run`, `go test`, `go vet`, `go fmt`, `go mod tidy`, `go mod download`, `go generate`, `go get` |
+| golangci-lint detected | — | `golangci-lint run` |
+
+#### Rust
+
+| If Detected | Read-Only Commands | Development Commands |
+|-------------|-------------------|---------------------|
+| `Cargo.toml` | `rustc --version`, `cargo --version`, `cargo tree`, `cargo metadata` | `cargo build`, `cargo run`, `cargo test`, `cargo check`, `cargo clippy`, `cargo fmt`, `cargo add`, `cargo remove` |
+
+#### Ruby
+
+| If Detected | Read-Only Commands | Development Commands |
+|-------------|-------------------|---------------------|
+| `Gemfile` | `ruby --version`, `bundle list`, `bundle show` | `bundle install`, `bundle exec`, `bundle add` |
+
+**Ruby frameworks:**
+
+| If Detected | Development Commands |
+|-------------|---------------------|
+| **Rails** | `rails` (e.g., `rails server`, `rails console`, `rails generate`, `rails db:migrate`, `rails db:seed`, `rails test`, `rails routes`) |
+| RSpec detected | `rspec`, `bundle exec rspec` |
+
+#### Java/Kotlin
+
+| If Detected | Read-Only Commands | Development Commands |
+|-------------|-------------------|---------------------|
+| `pom.xml` | `java --version`, `mvn --version`, `mvn dependency:tree` | `mvn compile`, `mvn test`, `mvn package`, `mvn clean`, `mvn install` |
+| `build.gradle` / `build.gradle.kts` | `java --version`, `gradle --version`, `gradle dependencies` | `gradle build`, `gradle test`, `gradle clean`, `gradle run`, `./gradlew` |
 
 #### .NET
 
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| `*.csproj` / `*.sln` | `dotnet --version`, `dotnet list package` |
+| If Detected | Read-Only Commands | Development Commands |
+|-------------|-------------------|---------------------|
+| `*.csproj` / `*.sln` | `dotnet --version`, `dotnet list package` | `dotnet build`, `dotnet run`, `dotnet test`, `dotnet add package`, `dotnet remove package`, `dotnet ef` |
 
-#### Build Tools
+#### Build Tools & Infrastructure
 
-| If Detected | Add These Commands |
-|-------------|-------------------|
-| `Dockerfile` | `docker --version`, `docker ps`, `docker images` |
-| `docker-compose.yml` | `docker-compose ps`, `docker-compose config` |
-| `*.tf` files | `terraform --version`, `terraform providers`, `terraform state list` |
-| `Makefile` | `make --version`, `make -n` |
+| If Detected | Read-Only Commands | Development Commands |
+|-------------|-------------------|---------------------|
+| `Dockerfile` | `docker --version`, `docker ps`, `docker images` | `docker build`, `docker run`, `docker exec`, `docker logs`, `docker stop`, `docker rm` |
+| `docker-compose.yml` | `docker-compose ps`, `docker-compose config` | `docker-compose up`, `docker-compose down`, `docker-compose build`, `docker-compose logs`, `docker-compose exec` |
+| `*.tf` files | `terraform --version`, `terraform providers`, `terraform state list` | `terraform plan`, `terraform apply`, `terraform init`, `terraform validate` |
+| `Makefile` | `make --version`, `make -n` | `make` |
+| `serverless.yml` | `serverless --version` | `serverless deploy`, `serverless invoke`, `serverless logs` |
+| AWS CDK (`aws-cdk` in deps) | `cdk --version` | `cdk synth`, `cdk diff`, `cdk deploy`, `cdk destroy` |
 
 ### Package Manager Exclusion Rules
 
@@ -348,7 +383,7 @@ Always include general-purpose domains:
 
 ### MCP Server Suggestions
 
-MCP servers are configured in `.mcp.json` (not `settings.json`). Only suggest MCP servers for detected services.
+MCP servers are configured in `.mcp.json` (not `settings.local.json`). Only suggest MCP servers for detected services.
 
 ```bash
 # Check existing MCP config
@@ -406,7 +441,7 @@ Present findings in this structure:
 | Build Tools | [detected tools] |
 | Monorepo | [yes/no, tool name] |
 
-## Recommended .claude/settings.json
+## Recommended .claude/settings.local.json
 
 {complete JSON with grouped, commented permissions}
 
@@ -432,7 +467,7 @@ Use AskUserQuestion to confirm before writing any files:
 
 If the user approves:
 
-1. Write `.claude/settings.json` with the recommended permissions
+1. Write `.claude/settings.local.json` with the recommended permissions
 2. Write `.mcp.json` with MCP server suggestions (if applicable)
 3. If merging with existing settings, preserve user customizations (deny list, custom commands)
 
@@ -444,10 +479,10 @@ If existing settings exist, show a clear diff of what will change before writing
 
 After writing:
 
-1. Verify `.claude/settings.json` is valid JSON:
+1. Verify `.claude/settings.local.json` is valid JSON:
 
 ```bash
-python3 -c "import json; json.load(open('.claude/settings.json'))" 2>&1 || echo "Invalid JSON"
+python3 -c "import json; json.load(open('.claude/settings.local.json'))" 2>&1 || echo "Invalid JSON"
 ```
 
 2. Verify `.mcp.json` is valid JSON (if written):
@@ -465,13 +500,14 @@ python3 -c "import json; json.load(open('.mcp.json'))" 2>&1 || echo "Invalid JSO
 
 | Rule | Reason |
 |------|--------|
-| Never include write/modify commands | Settings should only allow read-only operations |
+| Never include destructive system commands | No `rm -rf`, `format`, `fdisk`, or system-level destructive operations |
 | Never include absolute paths | Paths are user-specific and non-portable |
-| Never include custom scripts | Project scripts may have side effects |
+| Never include custom scripts | Project scripts may have side effects; only standard tool commands |
 | Never guess at tools | Only include commands for tools detected via config/lock files |
 | Never include wrong package manager | If project uses pnpm, don't include npm/yarn commands |
+| Always include development commands | Claude needs build, test, run, install commands to work effectively |
 | Always read existing settings first | Preserve user customizations and deny lists |
-| Always verify JSON validity | Invalid settings.json breaks Claude Code |
+| Always verify JSON validity | Invalid settings.local.json breaks Claude Code |
 | Always get user approval before writing | User must review recommendations before files are modified |
 | Never suggest GitHub MCP | Use `gh` CLI commands for GitHub operations instead |
 
@@ -504,16 +540,17 @@ After completing settings generation, verify the full workflow:
 - [ ] Every language detected has corresponding commands in settings
 - [ ] No commands included for undetected tools
 
-### Check 2: Read-Only Compliance
-- [ ] Every command in the allow list is read-only (no install, build, run, write, delete)
+### Check 2: Command Safety
+- [ ] No destructive system commands included (rm -rf, format, fdisk, etc.)
 - [ ] No absolute paths or user-specific paths included
+- [ ] Development commands are appropriate for detected frameworks
 
 ### Check 3: Package Manager Correctness
 - [ ] Only the detected package manager's commands are included
 - [ ] No competing package manager commands present
 
 ### Check 4: Settings Validity
-- [ ] `.claude/settings.json` is valid JSON (if written)
+- [ ] `.claude/settings.local.json` is valid JSON (if written)
 - [ ] `.mcp.json` is valid JSON (if written)
 
 ### Check 5: Completeness
@@ -535,9 +572,9 @@ Score yourself honestly before marking settings generation complete:
 - **2 points:** Detected all languages, package managers, frameworks, services, and build tools from config/lock files
 
 ### Command Accuracy (0-2 points)
-- **0 points:** Included commands for undetected tools or write commands
-- **1 point:** Mostly correct but included wrong package manager or missed a tool
-- **2 points:** Every command matches a detected tool, all read-only, correct package manager only
+- **0 points:** Included commands for undetected tools or missed framework-specific commands
+- **1 point:** Mostly correct but included wrong package manager or missed development commands
+- **2 points:** Every command matches a detected tool, includes both read-only and development commands, correct package manager only
 
 ### Existing Settings Handling (0-2 points)
 - **0 points:** Overwrote existing settings without reading them
@@ -564,9 +601,9 @@ These are excuses. Don't fall for them:
 
 - **"Most projects use npm"** → STILL detect the actual package manager from lock files
 - **"These extra commands might be useful"** → STILL only include commands for detected tools
-- **"Read commands can't cause harm"** → STILL verify each command is genuinely read-only
+- **"Any dev command is fine to include"** → STILL verify each command is appropriate for the detected framework
 - **"The user can fix it later"** → Get it right NOW; wrong settings cause permission friction
-- **"There's no existing settings.json"** → STILL check; the user may have customizations elsewhere
+- **"There's no existing settings.local.json"** → STILL check; the user may have customizations elsewhere
 - **"I'll just include all package managers"** → STILL exclude package managers not detected in the project
 - **"Absolute paths work on this machine"** → STILL use only portable command names
 - **"This MCP server would be helpful"** → STILL only suggest MCP servers for detected services
@@ -580,10 +617,10 @@ These are excuses. Don't fall for them:
 **Symptom:** Settings include npm commands but the project uses pnpm (or similar mismatch)
 **Fix:** Always check lock files first. The lock file determines the package manager, not assumptions.
 
-### Failure Mode 2: Write Commands Included
+### Failure Mode 2: Destructive Commands Included
 
-**Symptom:** Settings allow `npm install`, `pip install`, `docker build`, or other write operations
-**Fix:** Review every command against the read-only rule. If in doubt, exclude it.
+**Symptom:** Settings allow `rm -rf`, system-level destructive operations, or commands that could cause data loss
+**Fix:** Review every command for safety. Development commands (install, build, test, run) are fine; system-level destructive commands are not.
 
 ### Failure Mode 3: Absolute Paths
 
@@ -617,7 +654,7 @@ STEP 2: DETECT FRAMEWORKS AND SERVICES
 └── Gate: All frameworks and services identified
 
 STEP 3: CHECK EXISTING SETTINGS
-├── Read .claude/settings.json
+├── Read .claude/settings.local.json
 ├── Read .mcp.json
 ├── Note gaps and stale entries
 └── Gate: Current state understood
@@ -632,13 +669,13 @@ STEP 4: BUILD RECOMMENDATIONS
 
 STEP 5: PRESENT RECOMMENDATIONS
 ├── Show detected stack summary
-├── Show recommended settings.json
+├── Show recommended settings.local.json
 ├── Show changes from current (if applicable)
 ├── Get user approval
 └── Gate: User reviewed
 
 STEP 6: APPLY SETTINGS
-├── Write .claude/settings.json
+├── Write .claude/settings.local.json
 ├── Write .mcp.json (if applicable)
 ├── Preserve existing customizations
 └── Gate: User approved and files written
@@ -689,12 +726,12 @@ Settings generation complete.
 
 **Verification:**
 - JSON valid: ✅
-- Read-only only: ✅
+- No destructive commands: ✅
 - Correct package manager: ✅
-- All tools covered: ✅
+- All tools covered (read-only + development): ✅
 
 **Next steps:**
-[Review settings in .claude/settings.json, restart Claude Code to apply]
+[Review settings in .claude/settings.local.json, restart Claude Code to apply]
 ```
 
 ---
