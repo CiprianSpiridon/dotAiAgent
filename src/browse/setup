@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# browse setup — build browser binary from src/browse into .claude/skills/browse/dist
+set -e
+
+SRC_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SRC_DIR/../.." && pwd)"
+SKILL_DIR="$REPO_ROOT/.claude/skills/browse"
+BROWSE_BIN="$SKILL_DIR/browse"
+
+# Build browse binary if needed
+NEEDS_BUILD=0
+if [ ! -x "$BROWSE_BIN" ]; then
+  NEEDS_BUILD=1
+elif [ -n "$(find "$SRC_DIR/src" -type f -newer "$BROWSE_BIN" -print -quit 2>/dev/null)" ]; then
+  NEEDS_BUILD=1
+elif [ "$SRC_DIR/package.json" -nt "$BROWSE_BIN" ]; then
+  NEEDS_BUILD=1
+elif [ -f "$SRC_DIR/bun.lock" ] && [ "$SRC_DIR/bun.lock" -nt "$BROWSE_BIN" ]; then
+  NEEDS_BUILD=1
+fi
+
+if [ "$NEEDS_BUILD" -eq 1 ]; then
+  echo "Building browse binary..."
+  (
+    cd "$SRC_DIR"
+    bun install
+    bun run build
+  )
+fi
+
+if [ ! -x "$BROWSE_BIN" ]; then
+  echo "browse setup failed: binary missing at $BROWSE_BIN" >&2
+  exit 1
+fi
+
+# Symlink to PATH so `browse` works globally
+LINK_DIR="${HOME}/.local/bin"
+mkdir -p "$LINK_DIR"
+ln -sf "$BROWSE_BIN" "$LINK_DIR/browse"
+
+echo "browse ready."
+echo "  binary: $BROWSE_BIN"
+echo "  global: $LINK_DIR/browse"
+# Check if ~/.local/bin is in PATH
+case ":$PATH:" in
+  *":$LINK_DIR:"*) ;;
+  *) echo "  note:   add $LINK_DIR to your PATH if not already there" ;;
+esac

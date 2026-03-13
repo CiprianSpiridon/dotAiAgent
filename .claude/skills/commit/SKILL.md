@@ -539,7 +539,7 @@ The `commit` skill integrates with:
 
 - **`start`** — Use `start` to identify if commit is needed after work
 - **`create-pr`** — After committing, invoke `create-pr` to submit for review
-- **`git-worktrees`** — Commit within worktrees follows same workflow
+- **`git-merge-expert-worktree`** — Commit within worktrees follows same workflow
 
 **Workflow Chain:**
 

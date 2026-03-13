@@ -178,17 +178,17 @@ After making edits, read the section again to verify:
 ## Example Sync Session
 
 **Discovered:**
-- Skills: commit, create-pr, start, git-worktrees, writing-tools
+- Skills: commit, create-pr, start, git-merge-expert, writing-tools
 - Agents: laravel-senior-engineer, nextjs-senior-engineer, Plan, Explore
 - Plugins: mastra (mastraDocs, mastraMigration), context7 (resolve-library-id)
 
 **Current CLAUDE.md has:**
-- Skills: commit, create-pr, start (missing git-worktrees, writing-tools)
+- Skills: commit, create-pr, start (missing git-merge-expert, writing-tools)
 - Agents: laravel-senior-engineer, nextjs-senior-engineer (missing Plan, Explore)
 - Plugins: mastra (correct)
 
 **Sync actions:**
-1. Add `git-worktrees` and `writing-tools` to skills table
+1. Add `git-merge-expert` and `writing-tools` to skills table
 2. Add `Plan` and `Explore` to agents table
 3. Add `context7` to plugins table
 

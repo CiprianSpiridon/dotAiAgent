@@ -95,15 +95,17 @@ See `references/skill_discovery_patterns.md` for comprehensive skill discovery c
 | -------------------------------- | ------------------------------ | -------------------------------------- |
 | Laravel backend, APIs, Eloquent  | `laravel-senior-engineer`      | `*.php`, `/app/`, `/routes/`, Eloquent |
 | Next.js, React Server Components | `nextjs-senior-engineer`       | `*.tsx`, `/app/`, `next.config.*`      |
-| NestJS APIs, microservices       | `nestjs-senior-engineer`       | `*.ts`, `@nestjs/*`, DI patterns       |
-| Remix full-stack apps            | `remix-senior-engineer`        | `*.tsx`, `remix.config.*`, loaders     |
+| React + Vite + Tailwind          | `react-vite-tailwind-engineer` | `*.tsx`, `vite.config.*`, `tailwind.*` |
 | Express.js APIs, middleware      | `express-senior-engineer`      | `*.js/*.ts`, `express` imports         |
 | Node.js CLI tools                | `nodejs-cli-senior-engineer`   | `commander`, `inquirer`, `ora`, CLI    |
+| Python backend, Django, pipelines| `python-senior-engineer`       | `*.py`, `requirements.txt`, `pyproject.toml` |
+| FastAPI, async DB, JWT auth      | `fastapi-senior-engineer`      | `*.py`, `fastapi` imports, `uvicorn`   |
+| Go backend, services             | `go-senior-engineer`           | `*.go`, `go.mod`, `go.sum`             |
+| Go CLI tools                     | `go-cli-senior-engineer`       | `*.go`, `cobra` imports, CLI patterns  |
+| iOS/macOS, Swift, SwiftUI        | `ios-macos-senior-engineer`    | `*.swift`, `Package.swift`, Xcode      |
+| Expo React Native mobile         | `expo-react-native-engineer`   | `*.tsx`, `app.json`, Expo modules      |
 | AWS infrastructure, CDK          | `devops-aws-senior-engineer`   | CDK, CloudFormation, Terraform, AWS    |
 | Docker, containers               | `devops-docker-senior-engineer`| Dockerfile, docker-compose, containers |
-| Expo React Native mobile         | `expo-react-native-engineer`   | `*.tsx`, `app.json`, Expo modules      |
-| Flutter mobile apps              | `flutter-senior-engineer`      | `*.dart`, `pubspec.yaml`               |
-| Magento 2 e-commerce             | `magento-senior-engineer`      | `*.php`, `/app/code/`, Magento DI      |
 | Architecture planning            | `Plan`                         | Design decisions, implementation plans |
 | General exploration, research    | `general-purpose` or `Explore` | Non-framework work, discovery          |
 
@@ -570,12 +572,20 @@ Before marking ANY task complete, verify these checks pass:
 
 The `start` skill is the entry point that leads to other skills:
 
-- **run-parallel-agents-feature-build** - When 3+ independent features are identified
-- **run-parallel-agents-feature-debug** - When multiple independent bugs are found
-- **ast-grep** - When searching for code patterns using AST structural matching (beyond text search)
-- **Specialized agents** - When domain expertise is required (Laravel, Next.js, NestJS, etc.)
-- **Explore agent** - During context gathering for broad codebase exploration
-- **Any domain-specific skill** - If a relevant skill exists, invoke it
+- **plan-to-task-list-with-dag** — When user needs to plan, decompose, or create tasks for a feature
+- **plan-founder-review** — Review a plan before execution (quality gate between planning and building)
+- **run-parallel-agents-feature-build** — When 3+ independent features are identified for parallel execution
+- **run-parallel-agents-feature-debug** — When multiple independent bugs are found for parallel debugging
+- **branch-review-before-pr** — Pre-landing review of branch diff for structural issues
+- **find-bugs** — Security audit and bug review of branch changes
+- **commit** — Intelligent conventional commit message generation
+- **create-pr** — Pull request creation with validation
+- **ast-grep** — Structural code search using AST pattern matching (beyond text search)
+- **Specialized agents** — When domain expertise is required (see agent table above)
+- **Explore agent** — During context gathering for broad codebase exploration
+- **Any domain-specific skill** — If a relevant skill exists, invoke it
+
+**Full pipeline:** `plan-to-task-list-with-dag` → `plan-founder-review` → `run-parallel-agents-feature-build` → `branch-review-before-pr` → `create-pr`
 
 **Always check for skills FIRST before proceeding with work.**
 

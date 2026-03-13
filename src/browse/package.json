@@ -1,0 +1,34 @@
+{
+  "name": "browse",
+  "version": "0.1.0",
+  "description": "Fast headless browser skill for Claude Code — persistent Chromium daemon via Playwright.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "browse": "../../.claude/skills/browse/browse"
+  },
+  "scripts": {
+    "build": "bun build --compile src/cli.ts --outfile ../../.claude/skills/browse/browse",
+    "dev": "bun run src/cli.ts",
+    "server": "bun run src/server.ts",
+    "test": "bun test",
+    "start": "bun run src/server.ts"
+  },
+  "dependencies": {
+    "playwright": "^1.58.2",
+    "diff": "^7.0.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "keywords": [
+    "browser",
+    "automation",
+    "playwright",
+    "headless",
+    "cli",
+    "claude",
+    "ai-agent",
+    "devtools"
+  ]
+}

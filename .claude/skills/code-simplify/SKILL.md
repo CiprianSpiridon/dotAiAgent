@@ -648,7 +648,7 @@ The `code-simplify` skill integrates with:
 
 - **`commit`** — After simplifying, invoke `commit` to commit the changes
 - **`create-pr`** — After committing, invoke `create-pr` to submit for review
-- **`plan-enhanced`** — For large-scale simplification spanning many files, use `plan-enhanced` first to design the approach
+- **`plan-to-task-list-with-dag`** — For large-scale simplification spanning many files, use `plan-to-task-list-with-dag` first to design the approach
 
 **Workflow Chain:**
 

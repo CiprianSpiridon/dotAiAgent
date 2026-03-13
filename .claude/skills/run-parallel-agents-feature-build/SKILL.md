@@ -108,26 +108,34 @@ For each independent task, determine the best agent type based on:
 
 - **Laravel backend** → `laravel-senior-engineer`
 - **Next.js frontend or full-stack** → `nextjs-senior-engineer`
-- **React UI components or design system** → `nextjs-senior-engineer` (or use context to infer if pure React)
-- **NestJS APIs or microservices** → `nestjs-senior-engineer`
-- **Remix applications** → `remix-senior-engineer`
+- **React + Vite + Tailwind frontends** → `react-vite-tailwind-engineer`
 - **Express.js APIs** → `express-senior-engineer`
-- **Expo React Native mobile** → `expo-react-native-senior-engineer`
-- **Flutter mobile apps** → `flutter-senior-engineer`
-- **Magento e-commerce** → `magento-senior-engineer`
+- **Node.js CLI tools** → `nodejs-cli-senior-engineer`
+- **Python backend, Django, data pipelines** → `python-senior-engineer`
+- **FastAPI specifically, async DB, JWT auth** → `fastapi-senior-engineer`
+- **Go backend, services** → `go-senior-engineer`
+- **Go CLI tools** → `go-cli-senior-engineer`
+- **iOS/macOS, Swift, SwiftUI** → `ios-macos-senior-engineer`
+- **Expo React Native mobile** → `expo-react-native-engineer`
+- **AWS infrastructure, CDK** → `devops-aws-senior-engineer`
+- **Docker, containers** → `devops-docker-senior-engineer`
 - **General tasks (exploration, research)** → `general-purpose`
 
 **File Pattern Analysis:**
 
 ```
 *.php + /app/ + /routes/ → Laravel
-*.tsx + /app/ or /pages/ → Next.js
-*.ts + nest-cli.json → NestJS
-*.ts + remix.config.js → Remix
+*.tsx + /app/ or /pages/ + next.config.* → Next.js
+*.tsx + vite.config.* + tailwind.config.* → React/Vite/Tailwind
 *.ts + express imports → Express
-*.tsx + app.json (Expo) → Expo
-*.dart + pubspec.yaml → Flutter
-*.php + /app/code/ (Magento structure) → Magento
+*.ts + commander/inquirer imports → Node CLI
+*.py + fastapi imports → FastAPI
+*.py + django/flask/general → Python
+*.go + go.mod → Go
+*.swift + Package.swift or *.xcodeproj → iOS/macOS
+*.tsx + app.json (Expo) → Expo React Native
+Dockerfile + docker-compose.* → Docker
+CDK, CloudFormation, Terraform → AWS DevOps
 ```
 
 ### Step 3: Prepare Agent Briefs
@@ -291,12 +299,17 @@ Quick reference for matching tasks to agents:
 | ----------------------------------- | ------------------------------------------------- | -------------------------------------------- |
 | `laravel-senior-engineer`           | Laravel backends, APIs, Eloquent models           | `*.php`, `/app/`, Eloquent, Artisan          |
 | `nextjs-senior-engineer`            | Next.js apps, React Server Components, App Router | `*.tsx`, `/app/`, `/pages/`, `next.config.*` |
-| `nestjs-senior-engineer`            | NestJS APIs, microservices, DI architecture       | `*.ts`, `@nestjs/*`, `nest-cli.json`         |
-| `remix-senior-engineer`             | Remix full-stack apps, loaders, actions           | `*.tsx`, `remix.config.*`, loaders/actions   |
+| `react-vite-tailwind-engineer`      | React + Vite + Tailwind TypeScript frontends      | `*.tsx`, `vite.config.*`, `tailwind.config.*`|
 | `express-senior-engineer`           | Express.js APIs, middleware, REST endpoints       | `*.js/*.ts`, `express` imports               |
-| `expo-react-native-senior-engineer` | Expo mobile apps, cross-platform                  | `*.tsx`, `app.json`, Expo modules            |
-| `flutter-senior-engineer`           | Flutter mobile apps, widgets, state mgmt          | `*.dart`, `pubspec.yaml`, Flutter widgets    |
-| `magento-senior-engineer`           | Magento 2 e-commerce, modules                     | `*.php`, `/app/code/`, Magento DI            |
+| `nodejs-cli-senior-engineer`        | Node.js CLI tools, commander.js, inquirer         | `commander`, `inquirer`, `ora`, CLI patterns |
+| `python-senior-engineer`            | Python backends, Django, data pipelines           | `*.py`, `requirements.txt`, `pyproject.toml` |
+| `fastapi-senior-engineer`           | FastAPI, async DB, JWT auth                       | `*.py`, `fastapi` imports, `uvicorn`         |
+| `go-senior-engineer`                | Go backends, services, APIs                       | `*.go`, `go.mod`, `go.sum`                   |
+| `go-cli-senior-engineer`            | Go CLI tools, cobra, viper                        | `*.go`, `cobra` imports, CLI patterns        |
+| `ios-macos-senior-engineer`         | Swift, SwiftUI, Xcode, SPM, StoreKit             | `*.swift`, `Package.swift`, `*.xcodeproj`    |
+| `expo-react-native-engineer`        | Expo mobile apps, cross-platform                  | `*.tsx`, `app.json`, Expo modules            |
+| `devops-aws-senior-engineer`        | AWS infrastructure, CDK, CloudFormation           | CDK, CloudFormation, Terraform, AWS          |
+| `devops-docker-senior-engineer`     | Docker, Docker Compose, containerization          | `Dockerfile`, `docker-compose.*`             |
 | `general-purpose`                   | Exploration, research, general tasks              | Non-framework-specific work                  |
 
 See `references/agent_matching_logic.md` for detailed matching rules and edge cases.
@@ -496,11 +509,12 @@ Parallel execution complete.
 
 The `run-parallel-agents-feature-build` skill integrates with:
 
-- **`plan-enhanced`** — Use `plan-enhanced` FIRST to structure a plan for parallel execution, then this skill to execute it
+- **`plan-to-task-list-with-dag`** — Use to generate a structured plan, then this skill to execute it
+- **`plan-founder-review`** — Review the plan before execution (quality gate)
 - **`start`** — Use `start` to identify if parallel agents are appropriate
 - **`run-parallel-agents-feature-debug`** — For debugging, use the debug variant instead
 
-**Workflow:** `start` → `plan-enhanced` → `run-parallel-agents-feature-build`
+**Workflow:** `start` → `plan-to-task-list-with-dag` → `plan-founder-review` → `run-parallel-agents-feature-build`
 
 ---
 

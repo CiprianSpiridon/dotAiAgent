@@ -128,21 +128,28 @@ For each independent problem cluster, determine the best agent type:
 
 - **Laravel backend issues** → `laravel-senior-engineer`
 - **Next.js frontend issues** → `nextjs-senior-engineer`
-- **React components/UI bugs** → `nextjs-senior-engineer`
-- **NestJS service failures** → `nestjs-senior-engineer`
-- **Remix app problems** → `remix-senior-engineer`
+- **React + Vite + Tailwind bugs** → `react-vite-tailwind-engineer`
 - **Express.js API issues** → `express-senior-engineer`
-- **Expo mobile bugs** → `expo-react-native-senior-engineer`
-- **Flutter app issues** → `flutter-senior-engineer`
-- **Magento module errors** → `magento-senior-engineer`
+- **Node.js CLI issues** → `nodejs-cli-senior-engineer`
+- **Python backend issues** → `python-senior-engineer`
+- **FastAPI issues** → `fastapi-senior-engineer`
+- **Go backend issues** → `go-senior-engineer`
+- **Go CLI issues** → `go-cli-senior-engineer`
+- **iOS/macOS, Swift issues** → `ios-macos-senior-engineer`
+- **Expo mobile bugs** → `expo-react-native-engineer`
+- **AWS infrastructure issues** → `devops-aws-senior-engineer`
+- **Docker/container issues** → `devops-docker-senior-engineer`
 - **General/cross-cutting issues** → `general-purpose`
 
 **Error Pattern Analysis:**
 
 ```
 PHPUnit test failures → Laravel
-Jest/Vitest frontend tests → Next.js/Remix
-NestJS e2e test failures → NestJS
+Jest/Vitest frontend tests → Next.js or React/Vite/Tailwind
+Express middleware/routing errors → Express
+pytest/unittest failures → Python or FastAPI
+go test failures → Go
+Swift/Xcode build errors → iOS/macOS
 TypeScript compilation errors → Match to framework
 Runtime errors → Match to where error occurs
 Performance issues → Match to affected component
@@ -255,19 +262,19 @@ Parallel debugging complete. Results:
 
 - 5 Laravel PHPUnit tests failing (authentication module)
 - 3 Next.js Jest tests failing (product listing page)
-- 2 NestJS e2e tests failing (payment service)
+- 2 Express API tests failing (payment service)
 
 **Execution:**
 
 1. **Cluster failures** by subsystem:
    - Laravel backend tests (authentication)
    - Next.js frontend tests (product listing)
-   - NestJS API tests (payment)
+   - Express API tests (payment)
 
 2. **Match agents:**
    - `laravel-senior-engineer` for Laravel test failures
    - `nextjs-senior-engineer` for Next.js test failures
-   - `nestjs-senior-engineer` for NestJS test failures
+   - `express-senior-engineer` for Express test failures
 
 3. **Launch in parallel** with debugging briefs containing:
    - Full test output/error messages
@@ -286,7 +293,7 @@ Parallel debugging complete. Results:
    Parallel debugging complete:
    - Laravel auth tests: ✅ Fixed (5/5 passing) - Missing user factory trait
    - Next.js product tests: ✅ Fixed (3/3 passing) - Incorrect mock data
-   - NestJS payment tests: ✅ Fixed (2/2 passing) - Async timing issue
+   - Express payment tests: ✅ Fixed (2/2 passing) - Async timing issue
 
    All 10 tests now passing. No conflicts detected.
    ```
@@ -301,7 +308,7 @@ Parallel debugging complete. Results:
 1. **Analyze bugs:**
    - Cart total calculation (Laravel backend logic)
    - Image upload (Next.js frontend + storage)
-   - Webhook timeout (NestJS microservice)
+   - Webhook timeout (Express microservice)
 
 2. **Verify independence:**
    - ✅ Different subsystems
@@ -312,7 +319,7 @@ Parallel debugging complete. Results:
 3. **Launch agents:**
    - `laravel-senior-engineer`: Debug cart calculation
    - `nextjs-senior-engineer`: Fix image upload
-   - `nestjs-senior-engineer`: Resolve webhook timeout
+   - `express-senior-engineer`: Resolve webhook timeout
 
 4. **Aggregate fixes:**
 
@@ -333,32 +340,32 @@ Parallel debugging complete. Results:
 **Error Context:**
 
 - 15 type errors in Next.js dashboard components
-- 8 type errors in NestJS user service
+- 8 type errors in Python FastAPI user service
 - 12 type errors in Express API middleware
 
 **Execution:**
 
 1. **Group by module/framework:**
    - Next.js errors (dashboard module)
-   - NestJS errors (user service)
+   - FastAPI errors (user service)
    - Express errors (API middleware)
 
 2. **Spawn agents:**
    - `nextjs-senior-engineer` for Next.js type errors
-   - `nestjs-senior-engineer` for NestJS type errors
+   - `fastapi-senior-engineer` for FastAPI type errors
    - `express-senior-engineer` for Express type errors
 
 3. **Each agent:**
-   - Analyzes type errors in their module
+   - Analyzes errors in their module
    - Fixes type definitions, imports, and interfaces
-   - Verifies TypeScript compilation succeeds
+   - Verifies compilation/validation succeeds
 
 4. **Result:**
 
    ```
-   TypeScript compilation now clean:
+   Compilation now clean:
    - Next.js dashboard: 15 type errors fixed (component props, hooks)
-   - NestJS user service: 8 type errors fixed (DTO types, decorators)
+   - FastAPI user service: 8 errors fixed (Pydantic models, type hints)
    - Express middleware: 12 type errors fixed (request/response types)
 
    Full build successful.
@@ -374,12 +381,12 @@ Parallel debugging complete. Results:
 1. **Cluster by component:**
    - Product search performance (Laravel)
    - Dashboard UI lag (Next.js)
-   - Webhook delay (NestJS)
+   - Webhook delay (Express service)
 
 2. **Parallel investigation:**
    - `laravel-senior-engineer`: Profile search queries, identify N+1 problems
    - `nextjs-senior-engineer`: Analyze render performance, identify re-render issues
-   - `nestjs-senior-engineer`: Trace webhook processing, identify bottlenecks
+   - `express-senior-engineer`: Trace webhook processing, identify bottlenecks
 
 3. **Each agent delivers:**
    - Performance analysis
@@ -406,12 +413,17 @@ Quick reference for matching debugging tasks to agents:
 | ----------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------- |
 | `laravel-senior-engineer`           | PHPUnit failures, Eloquent errors, API bugs           | Laravel exceptions, DB query errors, validation failures        |
 | `nextjs-senior-engineer`            | Jest/Vitest failures, React errors, hydration issues  | Component errors, RSC issues, build failures                    |
-| `nestjs-senior-engineer`            | e2e test failures, DI issues, microservice bugs       | Nest exceptions, module errors, guard failures                  |
-| `remix-senior-engineer`             | Loader/action failures, form bugs, route errors       | Remix errors, hydration mismatches, data loading issues         |
-| `express-senior-engineer`           | Middleware failures, routing bugs, API errors         | Express errors, middleware stack issues, request handling       |
-| `expo-react-native-senior-engineer` | Mobile crashes, navigation bugs, native module errors | React Native errors, Expo module issues, platform-specific bugs |
-| `flutter-senior-engineer`           | Widget errors, state issues, platform crashes         | Flutter exceptions, widget tree errors, async errors            |
-| `magento-senior-engineer`           | Module bugs, plugin errors, checkout issues           | Magento exceptions, DI errors, observer failures                |
+| `react-vite-tailwind-engineer`      | React + Vite + Tailwind component/build issues        | Vite build errors, Tailwind class issues, React hooks bugs      |
+| `express-senior-engineer`           | Middleware failures, routing bugs, API errors         | Express errors, middleware stack issues, request handling        |
+| `nodejs-cli-senior-engineer`        | CLI tool failures, argument parsing bugs              | Commander errors, prompt failures, output formatting            |
+| `python-senior-engineer`            | pytest failures, Django errors, pipeline bugs         | Python exceptions, import errors, async issues                  |
+| `fastapi-senior-engineer`           | FastAPI endpoint failures, async DB issues            | Pydantic validation, dependency injection, ASGI errors          |
+| `go-senior-engineer`                | Go test failures, service bugs, API errors            | Go panics, goroutine leaks, interface mismatches                |
+| `go-cli-senior-engineer`            | Go CLI tool failures, flag parsing bugs               | Cobra errors, flag conflicts, output formatting                 |
+| `ios-macos-senior-engineer`         | Swift/Xcode build failures, SwiftUI bugs              | Swift compiler errors, runtime crashes, UI layout issues        |
+| `expo-react-native-engineer`        | Mobile crashes, navigation bugs, native module errors | React Native errors, Expo module issues, platform-specific bugs |
+| `devops-aws-senior-engineer`        | Infrastructure failures, deployment issues            | CDK synth errors, CloudFormation failures, IAM issues           |
+| `devops-docker-senior-engineer`     | Container build/run failures, compose issues          | Dockerfile errors, network issues, volume mount failures        |
 | `general-purpose`                   | Cross-cutting issues, config errors, tooling problems | Build tool errors, linting issues, general debugging            |
 
 See `references/debug_patterns.md` for detailed error pattern matching and debugging strategies.
@@ -456,7 +468,7 @@ I've identified 3 independent issues that can be debugged in parallel:
 2. Next.js product listing tests (3 failures) - using nextjs-senior-engineer
    Root cause appears to be: Mock data mismatch
 
-3. NestJS payment service tests (2 failures) - using nestjs-senior-engineer
+3. Express payment service tests (2 failures) - using express-senior-engineer
    Root cause appears to be: Async timing
 
 Launching debugging agents now...
@@ -698,7 +710,7 @@ Parallel debugging complete.
 The `run-parallel-agents-feature-debug` skill integrates with:
 
 - **`start`** — Use `start` first to identify if this skill is needed
-- **`plan-enhanced`** — If debugging requires a plan, use `plan-enhanced` to structure it
+- **`plan-to-task-list-with-dag`** — If debugging requires a plan, use `plan-to-task-list-with-dag` to structure it
 - **`run-parallel-agents-feature-build`** — For building features; use this skill for debugging
 
-**Workflow:** `start` → (optionally) `plan-enhanced` → `run-parallel-agents-feature-debug`
+**Workflow:** `start` → (optionally) `plan-to-task-list-with-dag` → `run-parallel-agents-feature-debug`

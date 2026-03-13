@@ -95,7 +95,7 @@ See `references/discovery.md` for detailed discovery procedures.
 
 | Category | Example Skills | Triggers |
 |----------|---------------|----------|
-| Git workflow | commit, create-pr, git-worktrees | "commit", "PR", "branch" |
+| Git workflow | commit, create-pr, git-merge-expert, git-merge-expert-worktree | "commit", "PR", "branch", "merge" |
 | Parallel execution | run-parallel-agents-feature-build, run-parallel-agents-feature-debug | 3+ independent tasks |
 | Code search | ast-grep | "find pattern", "structural search" |
 | Writing skills | writing-tools, writing-agents | create/edit skills or agents |

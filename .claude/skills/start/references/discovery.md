@@ -223,7 +223,8 @@ I'm using the start skill. Discovering capabilities from file system and tools..
 | commit | Commit changes with intelligent conventional commit messages |
 | create-pr | Create pull requests with validation and formatting |
 | start | Mandatory workflow establishing skills, agents, and context |
-| git-worktrees | Manage git worktrees for parallel development |
+| git-merge-expert | Safe merging with CI checks, conflict resolution, rollback |
+| git-merge-expert-worktree | Worktree-native merging with full lifecycle management |
 | writing-tools | Create and edit skills with TDD methodology |
 | writing-agents | Create and configure agent definitions |
 | run-parallel-agents-feature-build | Orchestrate parallel agents for independent features |

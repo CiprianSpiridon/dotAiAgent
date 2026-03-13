@@ -539,7 +539,7 @@ The `find-bugs` skill integrates with:
 - **`commit`** — Run `find-bugs` before committing to catch issues early
 - **`create-pr`** — Run `find-bugs` before creating a PR for self-review
 - **`code-simplify`** — After fixing bugs, use `code-simplify` to clean up the fixes
-- **`plan-enhanced`** — For large branches with many findings, use `plan-enhanced` to organize the fix effort
+- **`plan-to-task-list-with-dag`** — For large branches with many findings, use `plan-to-task-list-with-dag` to organize the fix effort
 
 **Workflow Chain:**
 

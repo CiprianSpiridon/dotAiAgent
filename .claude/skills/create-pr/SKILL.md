@@ -593,7 +593,7 @@ The `create-pr` skill integrates with:
 
 - **`start`** — Use `start` to identify if PR creation is appropriate
 - **`commit`** — Automatically invoked if uncommitted changes detected
-- **`git-worktrees`** — PRs can be created from worktree branches
+- **`git-merge-expert-worktree`** — PRs can be created from worktree branches
 
 **Workflow Chain:**
 

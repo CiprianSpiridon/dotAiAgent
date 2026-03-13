@@ -57,8 +57,8 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 **When NOT to use:**
 
 - Pure PHP without framework → `general-purpose`
-- Magento PHP → `magento-senior-engineer`
 - WordPress → `general-purpose` (no WordPress agent)
+- Magento PHP → `laravel-senior-engineer` (closest PHP agent, Magento shares PHP ecosystem)
 
 ---
 
@@ -91,7 +91,6 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 **Task Pattern Triggers:**
 
 - "Build Next.js page for..."
-- "Create React component for..."
 - "Implement server action for..."
 - "Add API route for..."
 - "Build dashboard/UI for..."
@@ -107,105 +106,57 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 
 **When NOT to use:**
 
-- Pure React library → Still use `nextjs-senior-engineer` for component work
-- Remix app → `remix-senior-engineer`
-- React Native → `expo-react-native-senior-engineer`
+- Pure React SPA (Vite-based) → `react-vite-tailwind-engineer`
+- React Native → `expo-react-native-engineer`
+- Remix app → `nextjs-senior-engineer` (closest full-stack React framework agent)
 
 ---
 
-### nestjs-senior-engineer
+### react-vite-tailwind-engineer
 
 **Primary Expertise:**
 
-- NestJS framework with TypeScript
-- Dependency injection and modular architecture
-- Microservices patterns
-- Queue systems (Bull/BullMQ)
-- RESTful APIs and GraphQL
-- Guards, interceptors, pipes, filters, decorators
-- WebSockets and real-time features
-- Enterprise-grade server-side applications
+- React with Vite build tool
+- Tailwind CSS styling
+- TypeScript frontends
+- SPA architecture and client-side routing
+- Component library development
+- State management (Zustand, Redux, Jotai)
+- Form handling (React Hook Form, Formik)
+- Production-ready frontend applications
 
 **Technology Indicators:**
 
-- File extensions: `*.ts`
-- Framework files: `nest-cli.json`, `package.json` with `@nestjs/*` dependencies
-- Directory patterns: `/src/`, module-based structure (e.g., `/src/users/`, `/src/auth/`)
+- File extensions: `*.tsx`, `*.jsx`, `*.css`
+- Framework files: `vite.config.ts`, `vite.config.js`, `tailwind.config.*`, `postcss.config.*`
+- Directory patterns: `/src/`, `/src/components/`, `/src/pages/`, `/src/hooks/`
 - Code patterns:
-  - `@Injectable()` decorator
-  - `@Controller()` decorator
-  - `@Module()` decorator
-  - `@Get()`, `@Post()`, etc. route decorators
-  - Dependency injection in constructors
-  - `import { ... } from '@nestjs/...'`
+  - `import { useState, useEffect } from 'react'`
+  - Tailwind utility classes: `className="flex items-center..."`
+  - Vite-specific: `import.meta.env`
+  - React Router: `useNavigate`, `useParams`, `<Route>`
 
 **Task Pattern Triggers:**
 
-- "Build NestJS module for..."
-- "Create service with DI for..."
-- "Implement microservice for..."
-- "Add queue processor for..."
-- "Build GraphQL resolver for..."
-- "Create guard for..."
-- "Add interceptor for..."
-- "Implement WebSocket gateway..."
+- "Build React component for..."
+- "Create Vite app for..."
+- "Style with Tailwind..."
+- "Add client-side routing for..."
+- "Build SPA for..."
+- "Create form with validation..."
+- "Implement state management..."
 
 **Confidence Scoring:**
 
-- **High (90-100%):** `nest-cli.json` exists, `@nestjs/*` in dependencies, NestJS decorators in code
-- **Medium (60-89%):** TypeScript with DI patterns but no clear config file
-- **Low (<60%):** Generic TypeScript without NestJS indicators
-
-**When NOT to use:**
-
-- Express.js without NestJS → `express-senior-engineer`
-- Node.js scripts without framework → `general-purpose`
-
----
-
-### remix-senior-engineer
-
-**Primary Expertise:**
-
-- Remix full-stack framework
-- Loaders and actions (data fetching patterns)
-- Progressive enhancement
-- Streaming patterns
-- Authentication and session management
-- Vite integration
-- Production-ready applications
-
-**Technology Indicators:**
-
-- File extensions: `*.tsx`, `*.ts`
-- Framework files: `remix.config.js`, `vite.config.ts`, `package.json` with `@remix-run/*`
-- Directory patterns: `/app/routes/`
-- Code patterns:
-  - `export async function loader({ request })`
-  - `export async function action({ request })`
-  - `useLoaderData()` hook
-  - `useFetcher()` hook
-  - `Form` component from `@remix-run/react`
-
-**Task Pattern Triggers:**
-
-- "Build Remix route for..."
-- "Create loader/action for..."
-- "Implement form with progressive enhancement..."
-- "Add authentication to Remix app..."
-- "Create Remix layout..."
-- "Add streaming for..."
-
-**Confidence Scoring:**
-
-- **High (90-100%):** `remix.config.*` exists, loader/action patterns, explicit mention
-- **Medium (60-89%):** React files with loader-like patterns
-- **Low (<60%):** Generic React components
+- **High (90-100%):** `vite.config.*` exists, `tailwind.config.*` exists, explicit mention of Vite/Tailwind
+- **Medium (60-89%):** React/TSX files with Tailwind classes but no clear Vite config
+- **Low (<60%):** Generic React components without Vite or Tailwind indicators
 
 **When NOT to use:**
 
 - Next.js app → `nextjs-senior-engineer`
-- Generic React → `nextjs-senior-engineer`
+- React Native → `expo-react-native-engineer`
+- Server-rendered React → `nextjs-senior-engineer`
 
 ---
 
@@ -218,18 +169,22 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 - RESTful API development
 - Queue systems with Bull
 - Logging with Pino
-- Production-ready Node.js server-side applications
+- NestJS applications (Express under the hood)
+- Node.js server-side applications with any framework
+- Production-ready Node.js APIs
 
 **Technology Indicators:**
 
 - File extensions: `*.js`, `*.ts`
-- Dependencies: `package.json` with `express` (but NOT `@nestjs/*`)
+- Dependencies: `package.json` with `express` or `@nestjs/*`
 - Code patterns:
   - `const express = require('express')` or `import express from 'express'`
   - `app.use()` middleware
   - `app.get()`, `app.post()`, etc. route handlers
   - `express.Router()`
   - `req`, `res`, `next` parameters
+  - NestJS: `@Injectable()`, `@Controller()`, `@Module()` decorators
+  - NestJS: `@Get()`, `@Post()` route decorators
 
 **Task Pattern Triggers:**
 
@@ -239,21 +194,317 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 - "Implement Express route handler for..."
 - "Add logging with Pino..."
 - "Set up Bull queue in Express..."
+- "Build NestJS module for..."
+- "Create NestJS service for..."
+- "Implement NestJS guard/interceptor..."
 
 **Confidence Scoring:**
 
-- **High (90-100%):** `express` in dependencies, middleware patterns, explicit mention
+- **High (90-100%):** `express` or `@nestjs/*` in dependencies, middleware patterns, explicit mention
 - **Medium (60-89%):** Node.js HTTP server patterns with Express-like structure
 - **Low (<60%):** Generic Node.js without Express indicators
 
 **When NOT to use:**
 
-- NestJS (uses Express internally) → `nestjs-senior-engineer`
 - Serverless functions → `general-purpose`
+- Node.js CLI tools → `nodejs-cli-senior-engineer`
+- Pure frontend Node.js tooling → `general-purpose`
 
 ---
 
-### expo-react-native-senior-engineer
+### nodejs-cli-senior-engineer
+
+**Primary Expertise:**
+
+- Node.js CLI tool development
+- Commander.js and other CLI frameworks
+- Interactive prompts (inquirer, prompts)
+- File system operations
+- Process management
+- Package publishing and distribution
+- CLI testing patterns
+- Production-ready CLI applications
+
+**Technology Indicators:**
+
+- File extensions: `*.js`, `*.ts`
+- Framework files: `package.json` with `commander`, `yargs`, `inquirer`, or `meow` dependencies
+- Code patterns:
+  - `#!/usr/bin/env node` shebang
+  - `program.command()` (commander.js)
+  - `process.argv` parsing
+  - `process.stdin`, `process.stdout` usage
+  - `bin` field in `package.json`
+
+**Task Pattern Triggers:**
+
+- "Build CLI tool for..."
+- "Create Node.js command-line app..."
+- "Add CLI command for..."
+- "Implement interactive prompts..."
+- "Parse command-line arguments..."
+- "Create npx-runnable tool..."
+
+**Confidence Scoring:**
+
+- **High (90-100%):** `bin` field in `package.json`, CLI frameworks in dependencies, shebang present
+- **Medium (60-89%):** Node.js scripts with `process.argv` usage
+- **Low (<60%):** Generic Node.js scripts
+
+**When NOT to use:**
+
+- Express/API servers → `express-senior-engineer`
+- Frontend build scripts → `general-purpose`
+
+---
+
+### python-senior-engineer
+
+**Primary Expertise:**
+
+- Python application development
+- Django web framework
+- Data pipelines and ETL
+- Scientific computing and data analysis
+- SQLAlchemy ORM
+- Celery task queues
+- Python testing (pytest, unittest)
+- Production-ready Python applications
+
+**Technology Indicators:**
+
+- File extensions: `*.py`
+- Framework files: `requirements.txt`, `pyproject.toml`, `setup.py`, `manage.py` (Django)
+- Directory patterns: `/src/`, `/tests/`, Django apps structure
+- Code patterns:
+  - `from django.` imports
+  - `class Meta:` in models
+  - `urlpatterns` in URLs
+  - `import pandas`, `import numpy`
+  - SQLAlchemy models and sessions
+
+**Task Pattern Triggers:**
+
+- "Build Python script for..."
+- "Create Django view for..."
+- "Implement data pipeline..."
+- "Add Django model for..."
+- "Write pytest for..."
+- "Build ETL process..."
+- "Create Celery task..."
+
+**Confidence Scoring:**
+
+- **High (90-100%):** `manage.py` exists (Django), `pyproject.toml` present, explicit mention
+- **Medium (60-89%):** Python files with framework imports
+- **Low (<60%):** Generic Python scripts
+
+**When NOT to use:**
+
+- FastAPI specifically → `fastapi-senior-engineer`
+- Python CLI tools → `python-senior-engineer` (handles general Python)
+- Go backends → `go-senior-engineer`
+
+---
+
+### fastapi-senior-engineer
+
+**Primary Expertise:**
+
+- FastAPI framework specifically
+- Async database operations (SQLAlchemy async, Tortoise ORM)
+- JWT authentication and OAuth2
+- Pydantic models and validation
+- Dependency injection
+- Background tasks
+- WebSocket support
+- OpenAPI/Swagger documentation
+- Production-ready async Python APIs
+
+**Technology Indicators:**
+
+- File extensions: `*.py`
+- Framework files: `requirements.txt` or `pyproject.toml` with `fastapi` dependency
+- Code patterns:
+  - `from fastapi import FastAPI`
+  - `@app.get()`, `@app.post()` decorators
+  - Pydantic models: `class MyModel(BaseModel)`
+  - `Depends()` for dependency injection
+  - `async def` route handlers
+  - `from fastapi.security import` JWT/OAuth2 patterns
+
+**Task Pattern Triggers:**
+
+- "Build FastAPI endpoint for..."
+- "Create Pydantic model for..."
+- "Implement JWT auth with FastAPI..."
+- "Add async database query..."
+- "Create FastAPI dependency..."
+- "Build WebSocket endpoint..."
+- "Add background task..."
+
+**Confidence Scoring:**
+
+- **High (90-100%):** `fastapi` in dependencies, FastAPI decorators in code, explicit mention
+- **Medium (60-89%):** Async Python with Pydantic models
+- **Low (<60%):** Generic Python without FastAPI indicators
+
+**When NOT to use:**
+
+- Django apps → `python-senior-engineer`
+- Flask apps → `python-senior-engineer` (closest match)
+- Non-API Python → `python-senior-engineer`
+
+---
+
+### go-senior-engineer
+
+**Primary Expertise:**
+
+- Go backend services and APIs
+- net/http and popular routers (chi, gorilla/mux, gin)
+- gRPC services
+- Database access (database/sql, sqlx, GORM)
+- Concurrency patterns (goroutines, channels)
+- Go testing and benchmarks
+- Microservices architecture
+- Production-ready Go backends
+
+**Technology Indicators:**
+
+- File extensions: `*.go`
+- Framework files: `go.mod`, `go.sum`
+- Directory patterns: `/cmd/`, `/internal/`, `/pkg/`, `/api/`
+- Code patterns:
+  - `package main`
+  - `func main()`
+  - `http.HandleFunc`, `http.ListenAndServe`
+  - `func (s *Server) ServeHTTP`
+  - `import "net/http"`
+  - gRPC: `pb.RegisterServiceServer`
+
+**Task Pattern Triggers:**
+
+- "Build Go API for..."
+- "Create Go service..."
+- "Implement gRPC service..."
+- "Add Go HTTP handler..."
+- "Write Go tests for..."
+- "Build microservice in Go..."
+- "Add database layer in Go..."
+
+**Confidence Scoring:**
+
+- **High (90-100%):** `go.mod` exists, Go server patterns, explicit mention
+- **Medium (60-89%):** Go files with HTTP or database patterns
+- **Low (<60%):** Generic Go files
+
+**When NOT to use:**
+
+- Go CLI tools → `go-cli-senior-engineer`
+- Go scripts/utilities without server → `go-cli-senior-engineer` or `general-purpose`
+
+---
+
+### go-cli-senior-engineer
+
+**Primary Expertise:**
+
+- Go CLI tool development
+- Cobra and Viper frameworks
+- Interactive terminal UIs (bubbletea, lipgloss)
+- Flag parsing and subcommands
+- Configuration management
+- Cross-platform builds
+- CLI testing patterns
+- Production-ready CLI applications
+
+**Technology Indicators:**
+
+- File extensions: `*.go`
+- Framework files: `go.mod` with `cobra`, `viper`, or `bubbletea` dependencies
+- Directory patterns: `/cmd/`, `/internal/`
+- Code patterns:
+  - `cobra.Command{}` definitions
+  - `viper.Get*` configuration reads
+  - `rootCmd.AddCommand()`
+  - `os.Args` or flag parsing
+  - `fmt.Println`, `fmt.Fprintf(os.Stderr, ...)`
+
+**Task Pattern Triggers:**
+
+- "Build Go CLI tool for..."
+- "Create Cobra command for..."
+- "Add CLI subcommand..."
+- "Implement interactive terminal UI..."
+- "Parse flags for..."
+- "Create cross-platform CLI..."
+
+**Confidence Scoring:**
+
+- **High (90-100%):** Cobra/Viper in `go.mod`, CLI command patterns, explicit mention
+- **Medium (60-89%):** Go with `os.Args` or flag usage
+- **Low (<60%):** Generic Go files
+
+**When NOT to use:**
+
+- Go APIs/servers → `go-senior-engineer`
+- Go libraries → `go-senior-engineer` or `general-purpose`
+
+---
+
+### ios-macos-senior-engineer
+
+**Primary Expertise:**
+
+- Swift and SwiftUI development
+- iOS and macOS applications
+- Xcode project management
+- Swift Package Manager (SPM)
+- AVFoundation (audio/video)
+- StoreKit (in-app purchases)
+- Core Data and SwiftData
+- UIKit integration
+- Production-ready Apple platform applications
+
+**Technology Indicators:**
+
+- File extensions: `*.swift`, `*.xib`, `*.storyboard`
+- Framework files: `Package.swift`, `*.xcodeproj`, `*.xcworkspace`, `Podfile`
+- Directory patterns: `/Sources/`, `/Tests/`, Xcode group structure
+- Code patterns:
+  - `import SwiftUI`
+  - `import UIKit`
+  - `struct ContentView: View`
+  - `@State`, `@Binding`, `@ObservedObject`, `@StateObject`
+  - `AVPlayer`, `AVCaptureSession`
+  - `SKProduct`, `SKPaymentQueue`
+
+**Task Pattern Triggers:**
+
+- "Build iOS app for..."
+- "Create SwiftUI view for..."
+- "Add macOS feature..."
+- "Implement StoreKit purchase..."
+- "Create AVFoundation player..."
+- "Add Core Data model..."
+- "Build Apple Watch complication..."
+- "Create SPM package..."
+
+**Confidence Scoring:**
+
+- **High (90-100%):** `*.xcodeproj` or `Package.swift` exists, SwiftUI/UIKit imports, explicit mention
+- **Medium (60-89%):** Swift files with Apple framework imports
+- **Low (<60%):** Generic Swift without Apple platform indicators
+
+**When NOT to use:**
+
+- Server-side Swift (Vapor) → `general-purpose`
+- Cross-platform mobile → `expo-react-native-engineer`
+
+---
+
+### expo-react-native-engineer
 
 **Primary Expertise:**
 
@@ -285,6 +536,7 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 - "Add mobile feature for..."
 - "Create React Native component..."
 - "Add Expo camera integration..."
+- "Build Flutter screen..." (Flutter not supported, Expo is closest mobile agent)
 
 **Confidence Scoring:**
 
@@ -294,100 +546,106 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 
 **When NOT to use:**
 
-- Pure React Native without Expo → `general-purpose` (no pure RN agent)
-- Web-only React → `nextjs-senior-engineer`
+- iOS/macOS native → `ios-macos-senior-engineer`
+- Web-only React → `nextjs-senior-engineer` or `react-vite-tailwind-engineer`
 
 ---
 
-### flutter-senior-engineer
+### devops-aws-senior-engineer
 
 **Primary Expertise:**
 
-- Flutter framework
-- Widget composition
-- Navigation (GoRouter, Navigator 2.0)
-- State management (Riverpod, Provider, Bloc)
-- Talker logging
-- Testing with flutter_test
-- Firebase integration
-- Production-ready cross-platform mobile applications
+- AWS infrastructure and services
+- AWS CDK (Cloud Development Kit)
+- CloudFormation templates
+- Terraform for AWS
+- IAM policies and security
+- Lambda, API Gateway, ECS, S3, RDS, DynamoDB
+- CI/CD pipelines (CodePipeline, GitHub Actions for AWS)
+- Infrastructure as Code patterns
+- Production-ready cloud architectures
 
 **Technology Indicators:**
 
-- File extensions: `*.dart`
-- Framework files: `pubspec.yaml` with Flutter dependencies
-- Directory patterns: `/lib/`, `/test/`
+- File extensions: `*.tf`, `*.tfvars`, `*.yaml`, `*.json`
+- Framework files: `cdk.json`, `template.yaml` (SAM), `*.tf` files, `serverless.yml`
+- Directory patterns: `/cdk/`, `/infra/`, `/infrastructure/`, `/terraform/`
 - Code patterns:
-  - `class MyWidget extends StatelessWidget`
-  - `class MyWidget extends StatefulWidget`
-  - `@override Widget build(BuildContext context)`
-  - Flutter widgets: `Container`, `Column`, `Row`, `Text`
+  - `new cdk.Stack()`, `new s3.Bucket()`
+  - `resource "aws_"` (Terraform)
+  - `AWSTemplateFormatVersion` (CloudFormation)
+  - `provider "aws"` (Terraform)
+  - AWS SDK usage: `import boto3`, `AWS.S3()`
 
 **Task Pattern Triggers:**
 
-- "Build Flutter screen for..."
-- "Create widget for..."
-- "Implement state management for..."
-- "Add navigation for..."
-- "Create Flutter layout..."
-- "Add Firebase to Flutter app..."
+- "Set up AWS infrastructure for..."
+- "Create CDK stack for..."
+- "Write Terraform for..."
+- "Configure IAM policy..."
+- "Deploy Lambda function..."
+- "Set up CI/CD pipeline..."
+- "Create CloudFormation template..."
+- "Configure S3/RDS/DynamoDB..."
 
 **Confidence Scoring:**
 
-- **High (90-100%):** `pubspec.yaml` with Flutter SDK, `*.dart` files with widget patterns
-- **Medium (60-89%):** Dart files without clear Flutter markers
-- **Low (<60%):** Generic code
+- **High (90-100%):** `cdk.json` or `*.tf` files exist, AWS resource patterns, explicit mention
+- **Medium (60-89%):** YAML/JSON with AWS-like resource definitions
+- **Low (<60%):** Generic infrastructure files
 
 **When NOT to use:**
 
-- Dart backend (without Flutter) → `general-purpose`
+- Docker-only tasks → `devops-docker-senior-engineer`
+- Non-AWS cloud (GCP, Azure) → `general-purpose`
+- Application code → Use the appropriate application agent
 
 ---
 
-### magento-senior-engineer
+### devops-docker-senior-engineer
 
 **Primary Expertise:**
 
-- Magento 2 e-commerce
-- Module development
-- Dependency injection (di.xml)
-- Plugins (interceptors) and observers
-- Service contracts
-- REST/GraphQL APIs
-- Monolog logging
-- Testing with PHPUnit
-- Production-ready e-commerce applications
+- Docker containerization
+- Docker Compose orchestration
+- Dockerfile best practices
+- Multi-stage builds
+- Container networking
+- Volume management
+- Image optimization
+- Container security
+- Production-ready container setups
 
 **Technology Indicators:**
 
-- File extensions: `*.php`, `*.xml`
-- Directory patterns: `/app/code/[Vendor]/[Module]/`, `/vendor/magento/`
-- Framework files: `registration.php`, `module.xml`, `di.xml`, `composer.json` with Magento dependencies
+- File extensions: `Dockerfile`, `docker-compose.yml`, `docker-compose.yaml`, `.dockerignore`
 - Code patterns:
-  - `namespace [Vendor]\[Module]\`
-  - Magento DI patterns
-  - Service contracts: `*Interface` and implementations
-  - Plugins: `before*`, `after*`, `around*` methods
+  - `FROM`, `RUN`, `COPY`, `CMD`, `ENTRYPOINT` (Dockerfile)
+  - `services:`, `volumes:`, `networks:` (docker-compose)
+  - `docker build`, `docker run` commands
+  - Multi-stage: `FROM ... AS builder`
 
 **Task Pattern Triggers:**
 
-- "Build Magento module for..."
-- "Create plugin for..."
-- "Implement service contract for..."
-- "Add Magento API endpoint for..."
-- "Create observer for..."
-- "Add Magento 2 extension..."
+- "Dockerize application..."
+- "Create Dockerfile for..."
+- "Set up Docker Compose..."
+- "Optimize Docker image..."
+- "Add multi-stage build..."
+- "Configure container networking..."
+- "Create development Docker setup..."
 
 **Confidence Scoring:**
 
-- **High (90-100%):** Magento directory structure, `module.xml`, explicit mention
-- **Medium (60-89%):** PHP in `/app/code/` with Magento-like namespaces
-- **Low (<60%):** Generic PHP
+- **High (90-100%):** `Dockerfile` or `docker-compose.yml` exists, explicit mention
+- **Medium (60-89%):** Container-related configuration files
+- **Low (<60%):** Generic YAML without Docker indicators
 
 **When NOT to use:**
 
-- Generic PHP → `general-purpose`
-- Laravel → `laravel-senior-engineer`
+- Kubernetes/ECS orchestration → `devops-aws-senior-engineer` (if AWS) or `general-purpose`
+- Application code inside containers → Use the appropriate application agent
+- AWS infrastructure → `devops-aws-senior-engineer`
 
 ---
 
@@ -401,6 +659,8 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 - Tasks not matching specific frameworks
 - Configuration file edits
 - Documentation generation
+- Shell scripting
+- Languages/frameworks without dedicated agents (Ruby, Rust, Elixir, etc.)
 
 **Use When:**
 
@@ -410,6 +670,7 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 - Shell scripting
 - Simple file operations (typo fixes, config edits)
 - Documentation work
+- Unsupported frameworks (SvelteKit, Nuxt.js, Rails, etc.)
 
 **Task Pattern Triggers:**
 
@@ -419,6 +680,61 @@ This document provides comprehensive rules, patterns, and decision trees for mat
 - "Generate documentation for..."
 - "Find all files matching..."
 - "Fix typo in..."
+- "Write shell script..."
+
+---
+
+### Plan
+
+**Primary Expertise:**
+
+- Architecture planning and design decisions
+- System design and technical specifications
+- Breaking down large features into tasks
+- Technology selection and trade-off analysis
+- Migration strategies
+
+**Use When:**
+
+- User asks for architecture or design advice
+- Planning a large feature before implementation
+- Evaluating technology choices
+- Creating implementation roadmaps
+
+**Task Pattern Triggers:**
+
+- "Plan the architecture for..."
+- "Design the system for..."
+- "What's the best approach to..."
+- "How should we structure..."
+- "Create a technical spec for..."
+
+---
+
+### Explore
+
+**Primary Expertise:**
+
+- Fast codebase exploration and discovery
+- Finding patterns across files
+- Understanding project structure
+- Locating specific implementations
+- Mapping dependencies and relationships
+
+**Use When:**
+
+- Need to understand codebase structure quickly
+- Finding specific code patterns
+- Mapping out how a feature works
+- Discovery before implementation
+
+**Task Pattern Triggers:**
+
+- "Find where X is implemented..."
+- "How does Y work in this codebase..."
+- "Map out the Z feature..."
+- "Show me all files related to..."
+- "What's the project structure..."
 
 ---
 
@@ -438,20 +754,39 @@ Is the task trivial? (single-file typo fix, simple read, etc.)
 Scan codebase for technology indicators:
 ├─ Laravel detected (*.php, /app/, composer.json with laravel/framework)
 │  └─ Task involves Laravel work? → laravel-senior-engineer
+├─ Magento detected (/app/code/, module.xml)
+│  └─ Task involves Magento/PHP work? → laravel-senior-engineer (closest PHP agent)
 ├─ Next.js detected (next.config.*, /app/ with *.tsx, package.json with next)
 │  └─ Task involves Next.js work? → nextjs-senior-engineer
-├─ NestJS detected (nest-cli.json, @nestjs/* dependencies)
-│  └─ Task involves NestJS work? → nestjs-senior-engineer
+├─ React+Vite detected (vite.config.*, tailwind.config.*, React SPA)
+│  └─ Task involves React SPA work? → react-vite-tailwind-engineer
 ├─ Remix detected (remix.config.*, @remix-run/*)
-│  └─ Task involves Remix work? → remix-senior-engineer
-├─ Express detected (express dependency, but NOT NestJS)
-│  └─ Task involves Express work? → express-senior-engineer
-├─ Expo detected (app.json, expo dependency)
-│  └─ Task involves Expo/React Native work? → expo-react-native-senior-engineer
+│  └─ Server-side rendering focus? → nextjs-senior-engineer
+│  └─ Client-side SPA focus? → react-vite-tailwind-engineer
+├─ Express detected (express dependency)
+│  └─ Task involves Express/API work? → express-senior-engineer
+├─ NestJS detected (nest-cli.json, @nestjs/*)
+│  └─ Task involves NestJS work? → express-senior-engineer (handles NestJS too)
+├─ Node.js CLI detected (bin field, commander/yargs dependency)
+│  └─ Task involves CLI tool work? → nodejs-cli-senior-engineer
+├─ FastAPI detected (fastapi dependency, async Python API)
+│  └─ Task involves FastAPI work? → fastapi-senior-engineer
+├─ Python/Django detected (manage.py, *.py, requirements.txt)
+│  └─ Task involves Python work? → python-senior-engineer
+├─ Go server detected (go.mod, net/http patterns)
+│  └─ Task involves Go API/service? → go-senior-engineer
+├─ Go CLI detected (go.mod with cobra/viper)
+│  └─ Task involves Go CLI? → go-cli-senior-engineer
+├─ iOS/macOS detected (*.swift, *.xcodeproj, Package.swift)
+│  └─ Task involves Apple platform? → ios-macos-senior-engineer
+├─ Expo/React Native detected (app.json, expo dependency)
+│  └─ Task involves mobile app? → expo-react-native-engineer
 ├─ Flutter detected (pubspec.yaml, *.dart)
-│  └─ Task involves Flutter work? → flutter-senior-engineer
-├─ Magento detected (/app/code/, module.xml, Magento namespaces)
-│  └─ Task involves Magento work? → magento-senior-engineer
+│  └─ Task involves mobile app? → expo-react-native-engineer (closest mobile agent)
+├─ AWS infra detected (cdk.json, *.tf with AWS, CloudFormation)
+│  └─ Task involves AWS? → devops-aws-senior-engineer
+├─ Docker detected (Dockerfile, docker-compose.yml)
+│  └─ Task involves containerization? → devops-docker-senior-engineer
 └─ No framework detected
    └─ Use general-purpose or Explore agent
 ```
@@ -463,6 +798,7 @@ What type of work is required?
 ├─ Feature building (new functionality) → Delegate to specialized agent
 ├─ Bug fixing/debugging → Delegate to specialized agent
 ├─ Refactoring → Delegate to specialized agent
+├─ Architecture planning → Use Plan agent
 ├─ Exploration/discovery → Use Explore agent or general-purpose
 └─ Simple edits → Execute directly
 ```
@@ -486,40 +822,68 @@ def match_agent(task, codebase_context):
     # Step 1: Check for explicit framework mention
     if "Laravel" in task or "Eloquent" in task:
         return "laravel-senior-engineer"
+    if "Magento" in task:
+        return "laravel-senior-engineer"  # Magento is PHP; Laravel agent is closest
     if "Next.js" in task or "Server Action" in task:
         return "nextjs-senior-engineer"
+    if "Remix" in task:
+        return "nextjs-senior-engineer"  # Remix → closest full-stack React agent
+    if "Vite" in task or "Tailwind" in task and "React" in task:
+        return "react-vite-tailwind-engineer"
     if "NestJS" in task or "@nestjs" in task:
-        return "nestjs-senior-engineer"
-    if "Remix" in task or "loader" in task and "action" in task:
-        return "remix-senior-engineer"
-    if "Express" in task and "NestJS" not in task:
+        return "express-senior-engineer"  # NestJS handled by Express agent
+    if "Express" in task:
         return "express-senior-engineer"
+    if "Node.js CLI" in task or "commander" in task or "CLI tool" in task:
+        return "nodejs-cli-senior-engineer"
+    if "FastAPI" in task or "Pydantic" in task:
+        return "fastapi-senior-engineer"
+    if "Django" in task or "Python" in task:
+        return "python-senior-engineer"
+    if "Go CLI" in task or "Cobra" in task or "Viper" in task:
+        return "go-cli-senior-engineer"
+    if "Go" in task and ("API" in task or "server" in task or "service" in task):
+        return "go-senior-engineer"
+    if "Swift" in task or "SwiftUI" in task or "iOS" in task or "macOS" in task:
+        return "ios-macos-senior-engineer"
     if "Expo" in task or "React Native" in task:
-        return "expo-react-native-senior-engineer"
-    if "Flutter" in task or "widget" in task:
-        return "flutter-senior-engineer"
-    if "Magento" in task:
-        return "magento-senior-engineer"
+        return "expo-react-native-engineer"
+    if "Flutter" in task:
+        return "expo-react-native-engineer"  # Flutter → closest mobile agent
+    if "AWS" in task or "CDK" in task or "Terraform" in task or "CloudFormation" in task:
+        return "devops-aws-senior-engineer"
+    if "Docker" in task or "Dockerfile" in task or "container" in task:
+        return "devops-docker-senior-engineer"
 
     # Step 2: Analyze codebase indicators
     frameworks = detect_frameworks(codebase_context)
 
     if "laravel" in frameworks:
         return "laravel-senior-engineer"
+    if "fastapi" in frameworks:
+        return "fastapi-senior-engineer"
     if "nextjs" in frameworks:
         return "nextjs-senior-engineer"
-    if "nestjs" in frameworks:
-        return "nestjs-senior-engineer"
-    if "remix" in frameworks:
-        return "remix-senior-engineer"
-    if "express" in frameworks and "nestjs" not in frameworks:
+    if "react-vite" in frameworks:
+        return "react-vite-tailwind-engineer"
+    if "nestjs" in frameworks or "express" in frameworks:
         return "express-senior-engineer"
+    if "nodejs-cli" in frameworks:
+        return "nodejs-cli-senior-engineer"
+    if "django" in frameworks or "python" in frameworks:
+        return "python-senior-engineer"
+    if "go-cli" in frameworks:
+        return "go-cli-senior-engineer"
+    if "go" in frameworks:
+        return "go-senior-engineer"
+    if "ios-macos" in frameworks:
+        return "ios-macos-senior-engineer"
     if "expo" in frameworks:
-        return "expo-react-native-senior-engineer"
-    if "flutter" in frameworks:
-        return "flutter-senior-engineer"
-    if "magento" in frameworks:
-        return "magento-senior-engineer"
+        return "expo-react-native-engineer"
+    if "aws" in frameworks:
+        return "devops-aws-senior-engineer"
+    if "docker" in frameworks:
+        return "devops-docker-senior-engineer"
 
     # Step 3: Default to general-purpose
     return "general-purpose"
@@ -530,21 +894,43 @@ def detect_frameworks(codebase_context):
     # File-based detection
     if "next.config.js" in codebase_context or "next.config.ts" in codebase_context:
         frameworks.append("nextjs")
+    if "vite.config.ts" in codebase_context or "vite.config.js" in codebase_context:
+        if "tailwind.config" in codebase_context or "react" in codebase_context:
+            frameworks.append("react-vite")
     if "nest-cli.json" in codebase_context:
         frameworks.append("nestjs")
-    if "remix.config.js" in codebase_context:
-        frameworks.append("remix")
     if "composer.json" in codebase_context and "laravel/framework" in codebase_context:
         frameworks.append("laravel")
+    if "module.xml" in codebase_context or "/app/code/" in codebase_context:
+        frameworks.append("laravel")  # Magento → handled by Laravel agent
     if "app.json" in codebase_context and "expo" in codebase_context:
         frameworks.append("expo")
     if "pubspec.yaml" in codebase_context and "flutter" in codebase_context:
-        frameworks.append("flutter")
-    if "module.xml" in codebase_context or "/app/code/" in codebase_context:
-        frameworks.append("magento")
+        frameworks.append("expo")  # Flutter → handled by Expo agent
     if "package.json" in codebase_context and "express" in codebase_context:
         if "nestjs" not in frameworks:
             frameworks.append("express")
+    if "package.json" in codebase_context:
+        if "commander" in codebase_context or "yargs" in codebase_context:
+            frameworks.append("nodejs-cli")
+    if "requirements.txt" in codebase_context or "pyproject.toml" in codebase_context:
+        if "fastapi" in codebase_context:
+            frameworks.append("fastapi")
+        elif "django" in codebase_context:
+            frameworks.append("django")
+        else:
+            frameworks.append("python")
+    if "go.mod" in codebase_context:
+        if "cobra" in codebase_context or "viper" in codebase_context:
+            frameworks.append("go-cli")
+        else:
+            frameworks.append("go")
+    if any(f in codebase_context for f in [".xcodeproj", "Package.swift", ".swift"]):
+        frameworks.append("ios-macos")
+    if "cdk.json" in codebase_context or ("provider" in codebase_context and "aws" in codebase_context):
+        frameworks.append("aws")
+    if "Dockerfile" in codebase_context or "docker-compose" in codebase_context:
+        frameworks.append("docker")
 
     return frameworks
 ```
@@ -559,8 +945,8 @@ def detect_frameworks(codebase_context):
 
 **Analysis:**
 
-- Backend API → Identify backend framework (Laravel, NestJS, Express)
-- Frontend page → Identify frontend framework (Next.js, Remix)
+- Backend API → Identify backend framework (Laravel, Express, FastAPI, Go)
+- Frontend page → Identify frontend framework (Next.js, React+Vite)
 
 **Decision:**
 
@@ -597,13 +983,41 @@ def detect_frameworks(codebase_context):
 - Use `Explore` agent with `subagent_type=Explore`
 - NOT a specialized framework agent
 
+### Scenario 4: Mobile App with Native and Cross-Platform
+
+**User Request:** "Add push notifications to the mobile app"
+
+**Analysis:**
+
+- Check if the project is Expo/React Native or native iOS/macOS
+- Expo indicators → `expo-react-native-engineer`
+- Swift/Xcode indicators → `ios-macos-senior-engineer`
+
+**Decision:**
+
+- Match to the detected mobile platform agent
+
+### Scenario 5: Infrastructure + Application
+
+**User Request:** "Deploy the app with Docker on AWS"
+
+**Analysis:**
+
+- Docker containerization → `devops-docker-senior-engineer`
+- AWS deployment → `devops-aws-senior-engineer`
+
+**Decision:**
+
+- If Docker and AWS are independent → Parallel agents
+- If sequential (Dockerize first, then deploy) → Sequential delegation
+
 ---
 
 ## Edge Cases
 
 ### Edge Case 1: Ambiguous File Extensions
 
-**Problem:** TypeScript (`.ts`, `.tsx`) used by Next.js, Remix, NestJS, Express, Expo
+**Problem:** TypeScript (`.ts`, `.tsx`) used by Next.js, Express, Expo, React+Vite
 
 **Solution Priority:**
 
@@ -618,11 +1032,10 @@ def detect_frameworks(codebase_context):
 File: src/components/Button.tsx
 
 Indicators to check:
-- Is there a next.config.js? → Next.js
-- Is there a nest-cli.json? → NestJS
-- Is there a remix.config.js? → Remix
-- Is there an app.json with Expo? → Expo
-- None? → Check imports for 'next/*', '@nestjs/*', '@remix-run/*', 'expo'
+- Is there a next.config.js? → Next.js → nextjs-senior-engineer
+- Is there a vite.config.ts? → React SPA → react-vite-tailwind-engineer
+- Is there an app.json with Expo? → Expo → expo-react-native-engineer
+- None? → Check imports for 'next/*', 'react-native', 'expo'
 ```
 
 ### Edge Case 2: Mixed Technology Project
@@ -650,7 +1063,7 @@ Ambiguous! Could be:
 
 ### Edge Case 3: Unknown Framework
 
-**Problem:** Framework not in catalog (e.g., SvelteKit, Nuxt.js, Django)
+**Problem:** Framework not in catalog (e.g., SvelteKit, Nuxt.js, Rails, Rust)
 
 **Solution:**
 
@@ -660,12 +1073,42 @@ Ambiguous! Could be:
 
 ### Edge Case 4: Pure Language Without Framework
 
-**Problem:** Raw PHP, raw TypeScript, raw Dart without framework
+**Problem:** Raw PHP, raw TypeScript, raw Python without framework
 
 **Solution:**
 
-- Use `general-purpose` agent
-- Still effective for non-framework-specific work
+- Raw PHP → `laravel-senior-engineer` if PHP-heavy, else `general-purpose`
+- Raw TypeScript → `general-purpose`
+- Raw Python → `python-senior-engineer`
+- Raw Go → `go-senior-engineer`
+- Raw Swift → `ios-macos-senior-engineer`
+
+### Edge Case 5: NestJS Projects
+
+**Problem:** NestJS uses Express internally but has its own patterns
+
+**Solution:**
+
+- Use `express-senior-engineer` — it handles NestJS as well as Express
+- NestJS decorators, DI, modules are within its expertise
+
+### Edge Case 6: Flutter Projects
+
+**Problem:** No dedicated Flutter agent exists
+
+**Solution:**
+
+- Use `expo-react-native-engineer` for mobile-focused work (closest mobile agent)
+- Use `general-purpose` for non-mobile Dart work
+
+### Edge Case 7: Remix Projects
+
+**Problem:** No dedicated Remix agent exists
+
+**Solution:**
+
+- For server-side rendering focus → `nextjs-senior-engineer` (closest SSR React agent)
+- For client-side SPA focus → `react-vite-tailwind-engineer`
 
 ---
 
@@ -752,23 +1195,23 @@ Assistant: *Identifies Laravel, delegates to laravel-senior-engineer*
 
 ---
 
-### Anti-Pattern 2: Using Wrong Agent
+### Anti-Pattern 2: Using Non-Existent Agent
 
 **Wrong:**
 
 ```
 User: "Fix NestJS service"
-Assistant: *Delegates to express-senior-engineer (both Node.js)*
+Assistant: *Delegates to nestjs-senior-engineer (does not exist)*
 ```
 
 **Right:**
 
 ```
 User: "Fix NestJS service"
-Assistant: *Correctly identifies NestJS, delegates to nestjs-senior-engineer*
+Assistant: *Delegates to express-senior-engineer (handles NestJS)*
 ```
 
-**Why:** Framework-specific patterns and best practices differ significantly.
+**Why:** Only delegate to agents that actually exist in the catalog.
 
 ---
 
@@ -812,12 +1255,65 @@ Assistant: *Recognizes two frameworks, splits into parallel agents or sequential
 
 ---
 
+### Anti-Pattern 5: Using Phantom Agent Names
+
+**Wrong:**
+
+```
+User: "Build Flutter screen"
+Assistant: *Delegates to flutter-senior-engineer (does not exist)*
+```
+
+**Right:**
+
+```
+User: "Build Flutter screen"
+Assistant: *Delegates to expo-react-native-engineer (closest mobile agent)*
+```
+
+**Why:** Always map to agents that exist. Never invent agent names.
+
+---
+
+## Quick Reference: Agent Selection Table
+
+| Technology / Framework | Agent                          | Notes                                    |
+| ---------------------- | ------------------------------ | ---------------------------------------- |
+| Laravel                | `laravel-senior-engineer`      |                                          |
+| PHP (generic)          | `laravel-senior-engineer`      | Or `general-purpose` if no Laravel       |
+| Magento                | `laravel-senior-engineer`      | Closest PHP agent                        |
+| Next.js                | `nextjs-senior-engineer`       |                                          |
+| Remix                  | `nextjs-senior-engineer`       | Closest SSR React agent                  |
+| React + Vite           | `react-vite-tailwind-engineer` |                                          |
+| Tailwind CSS           | `react-vite-tailwind-engineer` | Or `nextjs-senior-engineer` if Next.js   |
+| Express.js             | `express-senior-engineer`      |                                          |
+| NestJS                 | `express-senior-engineer`      | NestJS built on Express                  |
+| Node.js CLI            | `nodejs-cli-senior-engineer`   |                                          |
+| Python (general)       | `python-senior-engineer`       | Django, data, scripts                    |
+| Django                 | `python-senior-engineer`       |                                          |
+| FastAPI                | `fastapi-senior-engineer`      |                                          |
+| Flask                  | `python-senior-engineer`       | Closest Python web agent                 |
+| Go (servers/APIs)      | `go-senior-engineer`           |                                          |
+| Go (CLI tools)         | `go-cli-senior-engineer`       |                                          |
+| Swift / SwiftUI        | `ios-macos-senior-engineer`    |                                          |
+| iOS / macOS            | `ios-macos-senior-engineer`    |                                          |
+| Expo / React Native    | `expo-react-native-engineer`   |                                          |
+| Flutter                | `expo-react-native-engineer`   | Closest mobile agent                     |
+| AWS / CDK / Terraform  | `devops-aws-senior-engineer`   |                                          |
+| Docker / Compose       | `devops-docker-senior-engineer`|                                          |
+| Architecture planning  | `Plan`                         |                                          |
+| Codebase exploration   | `Explore`                      |                                          |
+| Everything else        | `general-purpose`              | Ruby, Rust, Elixir, SvelteKit, etc.     |
+
+---
+
 ## Quick Reference: Agent Selection Checklist
 
 Before delegating, verify:
 
 - [ ] I have identified the technology stack correctly
-- [ ] I have selected the appropriate specialized agent from the catalog
+- [ ] I have selected an agent that ACTUALLY EXISTS in the catalog
+- [ ] I have NOT used a phantom agent name (no nestjs, remix, flutter, magento, expo-react-native-senior-engineer)
 - [ ] I have gathered sufficient context to brief the agent
 - [ ] I have created a clear, comprehensive brief for the agent
 - [ ] I have established success criteria for the agent's work
@@ -830,17 +1326,37 @@ Before delegating, verify:
 **Key Principles:**
 
 1. Always use the RIGHT agent for the RIGHT job
-2. Specialized agents produce higher quality than general implementation
-3. Match based on: explicit mention > framework files > code patterns > defaults
-4. When in doubt, use AskUserQuestion to clarify
-5. Simple edits can be done directly, but complex framework work should be delegated
-6. Context gathering is mandatory before delegation
+2. Only delegate to agents that EXIST in the catalog
+3. Specialized agents produce higher quality than general implementation
+4. Match based on: explicit mention > framework files > code patterns > defaults
+5. When in doubt, use AskUserQuestion to clarify
+6. Simple edits can be done directly, but complex framework work should be delegated
+7. Context gathering is mandatory before delegation
+
+**Valid Agent Names (exhaustive list):**
+
+1. `laravel-senior-engineer`
+2. `nextjs-senior-engineer`
+3. `react-vite-tailwind-engineer`
+4. `express-senior-engineer`
+5. `nodejs-cli-senior-engineer`
+6. `python-senior-engineer`
+7. `fastapi-senior-engineer`
+8. `go-senior-engineer`
+9. `go-cli-senior-engineer`
+10. `ios-macos-senior-engineer`
+11. `expo-react-native-engineer`
+12. `devops-aws-senior-engineer`
+13. `devops-docker-senior-engineer`
+14. `general-purpose`
+15. `Plan`
+16. `Explore`
 
 **Decision Flow:**
 
 1. Identify task complexity
 2. Scan for technology indicators
-3. Match to agent catalog
+3. Match to agent catalog (only valid agents above)
 4. Assess confidence level
 5. Delegate with comprehensive brief
 6. Review and aggregate results
