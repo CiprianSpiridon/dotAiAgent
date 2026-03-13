@@ -114,7 +114,7 @@ browsegoto https://example.com
 browsetext
 
 # Take a screenshot (then Read the image)
-browsescreenshot /tmp/page.png
+browsescreenshot .browse/page.png
 
 # Snapshot: accessibility tree with refs
 browsesnapshot -i
@@ -254,7 +254,7 @@ browse diff <url1> <url2>      Text diff between two pages
 
 ### Multi-step (chain)
 ```
-echo '[["goto","https://example.com"],["snapshot","-i"],["click","@e1"],["screenshot","/tmp/result.png"]]' | browse chain
+echo '[["goto","https://example.com"],["snapshot","-i"],["click","@e1"],["screenshot",".browse/result.png"]]' | browse chain
 ```
 
 ### Tabs
@@ -289,7 +289,7 @@ browse restart                 Kill + restart server
 | Interact with elements | `snapshot -i` then `click @e3` |
 | Check if element exists | `js "!!document.querySelector('.thing')"` |
 | Extract specific data | `js "document.querySelector('.price').textContent"` |
-| Visual check | `screenshot /tmp/x.png` then Read the image |
+| Visual check | `screenshot .browse/x.png` then Read the image |
 | Fill and submit form | `snapshot -i` → `fill @e4 "val"` → `click @e5` → `screenshot` |
 | Check CSS | `css "selector" "property"` or `css @e3 "property"` |
 | Inspect DOM | `html "selector"` or `attrs @e3` |
@@ -297,7 +297,7 @@ browse restart                 Kill + restart server
 | Check network requests | `network` |
 | Check local dev | `goto http://127.0.0.1:3000` |
 | Compare two pages | `diff <url1> <url2>` |
-| Mobile layout check | `responsive /tmp/prefix` |
+| Mobile layout check | `responsive .browse/prefix` |
 | Multi-step flow | `echo '[...]' \| browse chain` |
 
 ## Architecture
