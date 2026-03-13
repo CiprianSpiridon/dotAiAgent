@@ -1,0 +1,101 @@
+{
+  "title": "Fix 4 Browse Skill Bugs (Round 2)",
+  "branch": "main",
+  "mode": "REDUCTION",
+  "overview": "4 independent bugs in the browse skill: text extractor mutates live DOM, tab snapshots lost on context recreation, scoped cursor-interactive selectors break when ancestor ID is outside scope, and mutation test gives false confidence.",
+  "scopeChallenge": "All 4 bugs are genuine, independent, and small. No over-engineering needed — each is a 10-30 line fix in 1-2 files. REDUCTION mode selected.",
+  "existingCodeLeverage": [
+    { "subProblem": "Text extraction without DOM mutation", "existingCode": "src/browse/src/read-commands.ts:21-39", "action": "rewrite" },
+    { "subProblem": "Text extraction in diff command", "existingCode": "src/browse/src/meta-commands.ts:242-253", "action": "rewrite" },
+    { "subProblem": "Tab snapshot migration", "existingCode": "src/browse/src/browser-manager.ts:399-480", "action": "extend" },
+    { "subProblem": "Scoped cursor-interactive selector", "existingCode": "src/browse/src/snapshot.ts:147-297", "action": "extend" },
+    { "subProblem": "Mutation test fixture", "existingCode": "src/browse/test/fixtures/mutation-observer.html", "action": "extend" }
+  ],
+  "failureModes": [
+    { "risk": "TreeWalker misses text that innerText captured", "affectedTasks": ["TASK-001"], "mitigation": "Test on content-heavy sites after fix; fall back to textContent with post-processing if needed" },
+    { "risk": "Tab ID mapping edge case with 0 tabs before recreation", "affectedTasks": ["TASK-002"], "mitigation": "Handle empty tabUrls — no snapshots to migrate, just clear" },
+    { "risk": "Scope root has no matching elements for cursor scan", "affectedTasks": ["TASK-003"], "mitigation": "Already handled — findCursorInteractiveElements returns empty array" }
+  ],
+  "testCoverageMap": [
+    { "codepath": "TreeWalker text extraction", "coveringTask": "TASK-004", "testType": "integration" },
+    { "codepath": "Tab snapshot migration across recreateContext", "coveringTask": "TASK-002", "testType": "manual" },
+    { "codepath": "Scoped cursor-interactive selector without anchor", "coveringTask": "TASK-003", "testType": "manual" },
+    { "codepath": "childList mutation detection", "coveringTask": "TASK-004", "testType": "unit" }
+  ],
+  "tasks": [
+    {
+      "id": "TASK-001",
+      "title": "Fix text extraction to avoid DOM mutation",
+      "description": "Replace the clone-append-to-body approach in read-commands.ts and meta-commands.ts with a TreeWalker-based extraction that never appends anything to the live DOM. Walk visible text nodes, skip script/style/noscript/svg and hidden elements.",
+      "type": "bug",
+      "effort": "M",
+      "priority": "P0",
+      "dependsOn": [],
+      "acceptanceCriteria": [
+        "browse text returns meaningful page content (no script/style text, preserves visible text)",
+        "browse diff url1 url2 still produces correct diffs",
+        "Running text on a page with childList:true MutationObserver does NOT increment mutation count"
+      ],
+      "filesToModify": ["src/browse/src/read-commands.ts", "src/browse/src/meta-commands.ts"],
+      "filesToCreate": [],
+      "agent": "nodejs-cli-senior-engineer"
+    },
+    {
+      "id": "TASK-002",
+      "title": "Migrate tab snapshots across context recreation",
+      "description": "In browser-manager.ts recreateContext(), build an old→new tab ID map during the tab recreation loop, then remap tabSnapshots keys. Save/restore tabSnapshots on rollback.",
+      "type": "bug",
+      "effort": "S",
+      "priority": "P0",
+      "dependsOn": [],
+      "acceptanceCriteria": [
+        "After emulate device, snapshot-diff still has the previous baseline and produces a diff",
+        "After a failed recreateContext() rollback, tabSnapshots is restored to pre-attempt state",
+        "Multi-tab scenario: each tab retains its own snapshot baseline after context recreation"
+      ],
+      "filesToModify": ["src/browse/src/browser-manager.ts"],
+      "filesToCreate": [],
+      "agent": "nodejs-cli-senior-engineer"
+    },
+    {
+      "id": "TASK-003",
+      "title": "Scope-aware ancestor ID lookup for cursor-interactive selectors",
+      "description": "In snapshot.ts findCursorInteractiveElements(), pass scopeSelector into page.evaluate(). When building the ancestor ID anchor, check if the ancestor is inside the scope root — if not, skip it. Also recompute selectorIndex against the scope root when scoped.",
+      "type": "bug",
+      "effort": "S",
+      "priority": "P1",
+      "dependsOn": [],
+      "acceptanceCriteria": [
+        "snapshot -C -s [id=main] only produces refs with selectors that resolve correctly via page.locator(scope).locator(cssSelector)",
+        "When ancestor ID is outside scope, selector falls back to element-only and still resolves",
+        "Unscoped -C continues to work as before"
+      ],
+      "filesToModify": ["src/browse/src/snapshot.ts"],
+      "filesToCreate": [],
+      "agent": "nodejs-cli-senior-engineer"
+    },
+    {
+      "id": "TASK-004",
+      "title": "Fix mutation observer test to detect childList mutations",
+      "description": "Enable childList: true in mutation-observer.html so the test actually detects DOM append/remove. After TASK-001 fixes the text extractor, this test should pass (count stays 0).",
+      "type": "bug",
+      "effort": "S",
+      "priority": "P1",
+      "dependsOn": ["TASK-001"],
+      "acceptanceCriteria": [
+        "mutation-observer.html observer config has childList: true",
+        "After TASK-001 fix, bun test mutation observer test passes (count remains 0)",
+        "Test would fail if the old clone-append approach were still used"
+      ],
+      "filesToModify": ["src/browse/test/fixtures/mutation-observer.html"],
+      "filesToCreate": [],
+      "agent": "nodejs-cli-senior-engineer"
+    }
+  ],
+  "dependencies": {
+    "TASK-001": [],
+    "TASK-002": [],
+    "TASK-003": [],
+    "TASK-004": ["TASK-001"]
+  }
+}
