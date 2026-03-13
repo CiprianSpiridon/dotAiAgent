@@ -242,18 +242,26 @@ export async function handleMetaCommand(
       const extractText = () => {
         const body = document.body;
         if (!body) return '';
-        // Use live DOM (not detached clone) so CSS visibility is respected
-        const hidden: Array<{ el: HTMLElement; prev: string }> = [];
-        body.querySelectorAll('script, style, noscript, svg').forEach(el => {
-          const htmlEl = el as HTMLElement;
-          hidden.push({ el: htmlEl, prev: htmlEl.style.display });
-          htmlEl.style.display = 'none';
+        const SKIP = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'SVG']);
+        const lines: string[] = [];
+        const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            let el = node.parentElement;
+            while (el && el !== body) {
+              if (SKIP.has(el.tagName)) return NodeFilter.FILTER_REJECT;
+              const style = getComputedStyle(el);
+              if (style.display === 'none' || style.visibility === 'hidden') return NodeFilter.FILTER_REJECT;
+              el = el.parentElement;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          },
         });
-        const text = body.innerText;
-        for (const { el, prev } of hidden) {
-          el.style.display = prev;
+        let node: Node | null;
+        while ((node = walker.nextNode())) {
+          const text = (node.textContent || '').trim();
+          if (text) lines.push(text);
         }
-        return text.split('\n').map(l => l.trim()).filter(l => l).join('\n');
+        return lines.join('\n');
       };
 
       // Use a temporary tab so active tab's state/URL/refs are preserved

@@ -99,7 +99,7 @@ See `references/discovery.md` for detailed discovery procedures.
 | Parallel execution | run-parallel-agents-feature-build, run-parallel-agents-feature-debug | 3+ independent tasks |
 | Code search | ast-grep | "find pattern", "structural search" |
 | Writing skills | writing-tools, writing-agents | create/edit skills or agents |
-| Documentation | update-claude-md-after-install | update docs after changes |
+| Documentation | map-project | update docs after changes |
 
 **Note:** This is not exhaustive. Always scan `.claude/skills/` for the actual available skills.
 

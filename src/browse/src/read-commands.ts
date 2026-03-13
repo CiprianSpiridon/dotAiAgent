@@ -19,28 +19,31 @@ export async function handleReadCommand(
 
   switch (command) {
     case 'text': {
-      // Use innerText on the live DOM (not a detached clone) so CSS visibility
-      // is respected — display:none / visibility:hidden elements are excluded.
-      // Strip script/style/noscript/svg content by temporarily hiding them.
+      // TreeWalker-based extraction — never appends to the live DOM,
+      // so MutationObservers are not triggered.
       return await page.evaluate(() => {
         const body = document.body;
         if (!body) return '';
-        const hidden: Array<{ el: HTMLElement; prev: string }> = [];
-        body.querySelectorAll('script, style, noscript, svg').forEach(el => {
-          const htmlEl = el as HTMLElement;
-          hidden.push({ el: htmlEl, prev: htmlEl.style.display });
-          htmlEl.style.display = 'none';
+        const SKIP = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'SVG']);
+        const lines: string[] = [];
+        const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
+          acceptNode(node) {
+            let el = node.parentElement;
+            while (el && el !== body) {
+              if (SKIP.has(el.tagName)) return NodeFilter.FILTER_REJECT;
+              const style = getComputedStyle(el);
+              if (style.display === 'none' || style.visibility === 'hidden') return NodeFilter.FILTER_REJECT;
+              el = el.parentElement;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          },
         });
-        const text = body.innerText;
-        // Restore original display values
-        for (const { el, prev } of hidden) {
-          el.style.display = prev;
+        let node: Node | null;
+        while ((node = walker.nextNode())) {
+          const text = (node.textContent || '').trim();
+          if (text) lines.push(text);
         }
-        return text
-          .split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0)
-          .join('\n');
+        return lines.join('\n');
       });
     }
 

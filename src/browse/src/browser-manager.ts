@@ -142,8 +142,8 @@ export class BrowserManager {
   private refTabId: number = 0; // Which tab the current refs belong to
 
   // ─── Last Snapshot (for snapshot-diff) ─────────────────────
-  private lastSnapshot: string | null = null;
-  private lastSnapshotOpts: string[] = [];
+  // Per-tab so snapshot-diff compares the correct baseline after tab switches
+  private tabSnapshots: Map<number, { text: string; opts: string[] }> = new Map();
 
   // ─── Dialog Handling ──────────────────────────────────────
   private lastDialog: { type: string; message: string; defaultValue?: string } | null = null;
@@ -219,6 +219,7 @@ export class BrowserManager {
 
     await page.close();
     this.pages.delete(tabId);
+    this.tabSnapshots.delete(tabId);
 
     // Switch to another tab if we closed the active one
     if (tabId === this.activeTabId) {
@@ -342,16 +343,15 @@ export class BrowserManager {
   }
 
   setLastSnapshot(text: string, opts?: string[]) {
-    this.lastSnapshot = text;
-    if (opts) this.lastSnapshotOpts = opts;
+    this.tabSnapshots.set(this.activeTabId, { text, opts: opts || [] });
   }
 
   getLastSnapshot(): string | null {
-    return this.lastSnapshot;
+    return this.tabSnapshots.get(this.activeTabId)?.text ?? null;
   }
 
   getLastSnapshotOpts(): string[] {
-    return this.lastSnapshotOpts;
+    return this.tabSnapshots.get(this.activeTabId)?.opts ?? [];
   }
 
   getLastDialog(): { type: string; message: string; defaultValue?: string } | null {
@@ -433,6 +433,7 @@ export class BrowserManager {
     const oldPages = new Map(this.pages);
     const oldActiveTabId = this.activeTabId;
     const oldNextTabId = this.nextTabId;
+    const oldTabSnapshots = new Map(this.tabSnapshots);
 
     // Swap to new context
     this.context = newContext;
@@ -440,12 +441,14 @@ export class BrowserManager {
     this.nextTabId = 1;
     this.refMap.clear();
 
-    // Recreate all tabs in new context
+    // Recreate all tabs in new context, building old→new ID map for snapshot migration
+    const idMap = new Map<number, number>(); // oldTabId → newTabId
     let activeRestoredId: number | null = null;
     try {
       for (const tab of tabUrls) {
         const url = tab.url !== 'about:blank' ? tab.url : undefined;
         const newId = await this.newTab(url);
+        idMap.set(tab.id, newId);
         if (tab.active) {
           activeRestoredId = newId;
         }
@@ -457,7 +460,7 @@ export class BrowserManager {
         this.activeTabId = activeRestoredId;
       }
     } catch (err) {
-      // Full rollback — restore all mutable state
+      // Full rollback — restore all mutable state including snapshots
       for (const [, page] of this.pages) {
         await page.close().catch(() => {});
       }
@@ -466,8 +469,18 @@ export class BrowserManager {
       this.pages = oldPages;
       this.activeTabId = oldActiveTabId;
       this.nextTabId = oldNextTabId;
+      this.tabSnapshots = oldTabSnapshots;
       this.refMap.clear();
       throw err;
+    }
+
+    // Migrate tabSnapshots: remap old tab IDs to new tab IDs
+    this.tabSnapshots.clear();
+    for (const [oldId, snapshot] of oldTabSnapshots) {
+      const newId = idMap.get(oldId);
+      if (newId !== undefined) {
+        this.tabSnapshots.set(newId, snapshot);
+      }
     }
 
     // Success — close old pages and context
@@ -607,15 +620,15 @@ export class BrowserManager {
       }
     });
 
-    // Capture response sizes via response finished
+    // Capture response sizes via Content-Length header (avoids reading full body into memory)
     page.on('requestfinished', async (req) => {
       try {
         const res = await req.response();
         if (res) {
           const entry = this.requestEntryMap.get(req);
           if (entry) {
-            const body = await res.body().catch(() => null);
-            entry.size = body ? body.length : 0;
+            const cl = res.headers()['content-length'];
+            entry.size = cl ? parseInt(cl, 10) : 0;
           }
         }
       } catch {}

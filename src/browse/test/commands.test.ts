@@ -8,7 +8,7 @@
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
 import { startTestServer } from './test-server';
 import { BrowserManager } from '../src/browser-manager';
-import { resolveServerScript } from '../src/cli';
+import { resolveServerScript, SAFE_TO_RETRY } from '../src/cli';
 import { handleReadCommand } from '../src/read-commands';
 import { handleWriteCommand } from '../src/write-commands';
 import { handleMetaCommand } from '../src/meta-commands';
@@ -587,5 +587,65 @@ describe('Buffer bounds', () => {
     expect(networkTotalAdded).toBe(startNetwork + 100);
     consoleBuffer.length = 0;
     networkBuffer.length = 0;
+  });
+});
+
+// ─── SAFE_TO_RETRY contract ─────────────────────────────────────
+
+describe('SAFE_TO_RETRY contract', () => {
+  test('js is NOT in the safe set (can execute side effects)', () => {
+    expect(SAFE_TO_RETRY.has('js')).toBe(false);
+  });
+
+  test('eval is NOT in the safe set (can execute side effects)', () => {
+    expect(SAFE_TO_RETRY.has('eval')).toBe(false);
+  });
+
+  test('known safe commands ARE in the set', () => {
+    for (const cmd of ['text', 'html', 'links', 'css', 'attrs', 'devices']) {
+      expect(SAFE_TO_RETRY.has(cmd)).toBe(true);
+    }
+  });
+});
+
+// ─── Network size tracking ──────────────────────────────────────
+
+describe('Network size tracking', () => {
+  test('network entries contain numeric size values', async () => {
+    networkBuffer.length = 0;
+    await handleWriteCommand('goto', [baseUrl + '/basic.html'], bm);
+    // Wait briefly for requestfinished events to fire
+    await new Promise(r => setTimeout(r, 500));
+    const result = await handleReadCommand('network', [], bm);
+    expect(result).toContain('GET');
+    expect(result).toContain('B)');
+    // Verify at least one entry has a numeric size
+    const sizeMatch = result.match(/(\d+)B\)/);
+    expect(sizeMatch).toBeTruthy();
+    const size = parseInt(sizeMatch![1], 10);
+    expect(size).toBeGreaterThanOrEqual(0);
+  });
+});
+
+// ─── DOM mutation safety ────────────────────────────────────────
+
+describe('DOM mutation safety', () => {
+  test('text command does not trigger MutationObserver', async () => {
+    await handleWriteCommand('goto', [baseUrl + '/mutation-observer.html'], bm);
+
+    // Reset counter after navigation — Playwright may inject utility scripts
+    // during goto that cause childList mutations unrelated to our code.
+    await handleReadCommand('js', ['window.__mutationCount = 0'], bm);
+
+    const before = await handleReadCommand('js', ['window.__mutationCount'], bm);
+    expect(parseInt(before, 10)).toBe(0);
+
+    // Run text command — TreeWalker-based, should not mutate live DOM
+    const text = await handleReadCommand('text', [], bm);
+    expect(text).toContain('Hello World');
+
+    // Mutation count should still be 0
+    const after = await handleReadCommand('js', ['window.__mutationCount'], bm);
+    expect(parseInt(after, 10)).toBe(0);
   });
 });

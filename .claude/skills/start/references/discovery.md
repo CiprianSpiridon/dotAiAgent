@@ -229,7 +229,7 @@ I'm using the start skill. Discovering capabilities from file system and tools..
 | writing-agents | Create and configure agent definitions |
 | run-parallel-agents-feature-build | Orchestrate parallel agents for independent features |
 | run-parallel-agents-feature-debug | Orchestrate parallel agents for debugging |
-| update-claude-md-after-install | Update CLAUDE.md with project-specific patterns |
+| map-project | Scan codebase and update CLAUDE.md with project-specific patterns |
 | ast-grep | Structural code search using AST patterns |
 
 **Available Agents:** (from Task tool subagent_type)

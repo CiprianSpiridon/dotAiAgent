@@ -1,6 +1,6 @@
 ---
-name: update-claude-md-after-install
-description: Use when user has just installed framework agents and CLAUDE.md contains generic examples - systematically discovers actual project patterns (custom commands, architecture decisions, team conventions) and updates CLAUDE.md and imported files with real project-specific information. Supports Laravel, Next.js, NestJS, Expo/React Native, and Node.js monorepo projects.
+name: map-project
+description: Scan the codebase and generate/update CLAUDE.md + reference files (exports, architecture, dev guide) with real project-specific patterns. Run after each coding session or major refactor to keep the AI context map current. Supports Laravel, Next.js, NestJS, Expo/React Native, and Node.js projects.
 ---
 
 <EXTREMELY-IMPORTANT>

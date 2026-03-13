@@ -1,10 +1,82 @@
-# dotAiAgent
+# Cip's Agent Loop
 
-Drop-in `.claude/` folder that gives [Claude Code](https://docs.anthropic.com/en/docs/claude-code) **26 specialized agents**, **23 workflow skills**, and **self-improving memory** across **13 tech stacks**.
+Drop-in `.claude/` folder that gives [Claude Code](https://docs.anthropic.com/en/docs/claude-code) **26 specialized agents**, **24 workflow skills**, and **self-improving memory** across **13 tech stacks**.
 
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Agents](https://img.shields.io/badge/agents-26-green) ![Skills](https://img.shields.io/badge/skills-23-green) ![Tech Stacks](https://img.shields.io/badge/tech_stacks-13-green)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Agents](https://img.shields.io/badge/agents-26-green) ![Skills](https://img.shields.io/badge/skills-24-green) ![Tech Stacks](https://img.shields.io/badge/tech_stacks-13-green)
 
-<!-- placeholder for demo GIF -->
+```
+                            Cip's Agent Loop
+                            ────────────────
+
+  ┌─────────────┐  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────┐
+  │   /start    │─▶│ /plan-to-task-list  │─▶│ /plan-founder-      │─▶│  Builder    │
+  │             │  │    -with-dag        │  │       review        │  │  agent      │
+  │ Discover    │  │                     │  │                     │  │             │
+  │ context,    │  │ Decompose feature   │  │ APPROVE / REVISE /  │  │ Auto-select │
+  │ stack,      │  │ into task DAG with  │  │ REJECT the plan     │  │ 1 of 13     │
+  │ skills      │  │ dependencies        │  │ before execution    │  │ builders    │
+  └─────────────┘  └─────────────────────┘  └─────────────────────┘  └──────┬──────┘
+       ▲                                                                    │
+       │                                    ┌───────────────────────────────┘
+       │                                    │  Parallel? Fan out
+       │                                    │  to isolated worktrees
+       │                                    ▼
+       │                  ┌──────────────────────────────────────────┐
+       │                  │  /run-parallel-agents-feature-build      │
+       │                  │  /run-parallel-agents-feature-debug      │
+       │                  │    ├── Agent 1 (worktree A)  API         │
+       │                  │    ├── Agent 2 (worktree B)  UI          │
+       │                  │    └── Agent 3 (worktree C)  Tests       │
+       │                  └──────────────────┬───────────────────────┘
+       │                                     │
+       │                  /git-merge-expert  (/git-merge-expert-worktree)
+       │                                     │
+       │                                     ▼
+       │                  ┌──────────────────────────────────────────┐
+       │                  │  Reviewer agent (matched 1-of-13)       │
+       │                  │  10-category audit per stack             │
+       │                  │                                         │
+       │                  │  Findings ──▶ .claude/reviews/          │
+       │                  │  Builder reads findings, implements fix  │
+       │                  └──────────────────┬───────────────────────┘
+       │                                     │
+       │                                     ▼
+       │  ┌──────────────┐  ┌─────────────┐  ┌─────────────┐  ┌──────────────────────┐
+       │  │  /create-pr  │  │  /commit    │  │   /code-    │  │     /find-bugs       │
+       │  │              │◀─│             │◀─│  simplify   │◀─│                      │
+       │  │ PR with      │  │ Analyze +   │  │             │  │ Security + logic     │
+       │  │ summary +    │  │ scan for    │  │ Clean up,   │  │ review, attack       │
+       │  │ test plan    │  │ secrets     │  │ no behavior │  │ surface mapping      │
+       │  │              │  │             │  │ change      │  │                      │
+       │  └──────┬───────┘  └─────────────┘  └─────────────┘  └──────────────────────┘
+       │         │                  ▲
+       │         │    ┌─────────────────────────────────┐
+       │         │    │  /branch-review-before-pr       │
+       │         │    │  Pre-landing gate between        │
+       │         │    │  /code-simplify and /commit      │
+       │         │    └─────────────────────────────────┘
+       │         │
+       │         │  Session learnings feed back:
+       │         │    /update-agent-learnings
+       │         │    /update-skill-learnings
+       │         │    /update-claude-learnings
+       │         │
+       └─────────┘  Next session starts smarter
+
+  ─────────────────────────────────────────────────────────────────────────────
+  Available throughout:
+    /browse                  Headless Chromium browser (40+ commands, ~100ms)
+    /ast-grep                Structural code search via AST patterns
+    /codemap                 Code search, deps, PageRank, coupling, cycles
+    /pr-retro                Branch health check (GREEN / YELLOW / RED)
+    /cost-estimate           Development cost & Claude ROI analysis
+    /frontend-design-ui-ux   Design specs, components, tokens, handoff
+
+  After each session (keep AI context map current):
+    /map-project                               Generate/update project CLAUDE.md
+    /map-project-monorepo                      Per-package CLAUDE.md (monorepos)
+    /update-claude-settings                    Configure permissions
+```
 
 ---
 
@@ -18,7 +90,7 @@ You've felt this:
 
 **Knowledge decay** — You spend 20 minutes teaching Claude a critical pattern. Next session, it's gone. The lesson evaporated. You teach it again.
 
-dotAiAgent solves all three with persistent, specialized, self-improving agents.
+Cip's Agent Loop solves all three with persistent, specialized, self-improving agents.
 
 ---
 
@@ -27,7 +99,7 @@ dotAiAgent solves all three with persistent, specialized, self-improving agents.
 ```
 .claude/
 ├── agents/       # 13 builders + 13 reviewers (one pair per stack)
-├── skills/       # 23 slash-command workflows
+├── skills/       # 24 slash-command workflows
 ├── learnings/    # Auto-synced code patterns and behavioral rules
 └── reviews/      # Persistent reviewer findings (bridge sessions)
 src/
@@ -38,7 +110,7 @@ src/
 |----------|-------|--------------|
 | **Builder Agents** | 13 | Write production code with deep stack-specific expertise |
 | **Reviewer Agents** | 13 | Audit code against 10-category checklists per stack |
-| **Workflow Skills** | 23 | Slash-command workflows for planning, building, reviewing, shipping |
+| **Workflow Skills** | 24 | Slash-command workflows for planning, building, reviewing, shipping |
 | **Learnings System** | 3 skills | Self-improving knowledge that compounds across sessions |
 | **Browse** | 40+ commands | Headless Chromium with ~100ms response times |
 
@@ -162,10 +234,10 @@ cd src/browse && ./setup
 ### Step 1: Generate project-specific config
 
 ```
-/update-claude-md-after-install
+/map-project
 ```
 
-Scans your codebase and generates a `CLAUDE.md` tailored to your project's frameworks, structure, and conventions.
+Scans your codebase and generates a `CLAUDE.md` tailored to your project's frameworks, structure, and conventions. Run this after each coding session to keep the AI context map current.
 
 ### Step 2: Discover your environment
 
@@ -285,7 +357,7 @@ The `.claude/reviews/` directory is gitignored — findings are ephemeral per wo
 
 ---
 
-## Skills (23)
+## Skills (24)
 
 Skills are multi-step workflows invoked via slash commands (`/skill-name`).
 
@@ -321,6 +393,7 @@ Skills are multi-step workflows invoked via slash commands (`/skill-name`).
 | **branch-review-before-pr** | `/branch-review-before-pr` | Pre-landing gate — query safety, race conditions, trust boundary violations *(use as final check before creating a PR)* |
 | **code-simplify** | `/code-simplify` | Refactors for clarity without behavior change — detects nesting, dead code, duplicates *(use to clean up after feature work)* |
 | **ast-grep** | `/ast-grep` | Structural code search using AST patterns — finds code by meaning, not text *(use for precise refactoring across a codebase)* |
+| **codemap** | `/codemap` | Hybrid vector+BM25 code search, symbol lookup, dependency analysis, PageRank importance, coupling metrics, cycle detection *(use for architecture analysis and code search)* |
 
 ### Analysis & Estimation
 
@@ -349,12 +422,12 @@ Skills are multi-step workflows invoked via slash commands (`/skill-name`).
 | **update-skill-learnings** | `/update-skill-learnings` | Captures meta-patterns about skill design and effectiveness *(use after improving a skill)* |
 | **update-claude-learnings** | `/update-claude-learnings` | Captures Claude Code behavioral rules, updates project CLAUDE.md *(use when you discover a behavioral rule)* |
 
-### Setup & Configuration
+### Project Mapping (run after each session)
 
 | Skill | Command | What It Does |
 |-------|---------|-------------|
-| **update-claude-md-after-install** | `/update-claude-md-after-install` | Discovers project patterns, generates framework-specific CLAUDE.md *(use right after installation)* |
-| **update-claude-md-after-install-monorepo** | `/update-claude-md-after-install-monorepo` | Generates per-package CLAUDE.md files for monorepos *(use for multi-package repos)* |
+| **map-project** | `/map-project` | Scans codebase, generates framework-specific CLAUDE.md + reference files *(run after each coding session)* |
+| **map-project-monorepo** | `/map-project-monorepo` | Generates per-package CLAUDE.md files for monorepos *(run after changes to multi-package repos)* |
 | **update-claude-settings** | `/update-claude-settings` | Audits and configures project settings and allowed commands *(use to set up permissions)* |
 
 ---
@@ -560,7 +633,7 @@ Claude Code
   │     ├── *-senior-engineer.md        Builders — write code
   │     └── *-senior-engineer-reviewer.md  Reviewers — audit code
   │
-  ├── loads .claude/skills/        23 skill workflows
+  ├── loads .claude/skills/        24 skill workflows
   │     └── <skill>/
   │           ├── SKILL.md              Skill definition (frontmatter + steps)
   │           └── references/           Supporting docs, templates, examples
@@ -599,6 +672,7 @@ Claude Code
 | Pre-PR structural review | `/branch-review-before-pr` |
 | Simplify changed code | `/code-simplify` |
 | Search code by structure | `/ast-grep` |
+| Code search & architecture analysis | `/codemap` |
 | Commit my changes | `/commit` |
 | Create a pull request | `/create-pr` |
 | Branch retrospective | `/pr-retro` |
@@ -610,8 +684,8 @@ Claude Code
 | Save code patterns | `/update-agent-learnings` |
 | Save skill patterns | `/update-skill-learnings` |
 | Save behavioral rules | `/update-claude-learnings` |
-| Generate CLAUDE.md | `/update-claude-md-after-install` |
-| Generate monorepo docs | `/update-claude-md-after-install-monorepo` |
+| Map project → CLAUDE.md | `/map-project` |
+| Map monorepo packages | `/map-project-monorepo` |
 | Configure settings | `/update-claude-settings` |
 
 ---
@@ -666,14 +740,14 @@ Yes. Delete any agent `.md` files you don't need from `.claude/agents/`. Each ag
 **Windows support?**
 Claude Code supports macOS, Linux, and Windows (via WSL). The browse skill is untested on native Windows.
 
-**How do I remove dotAiAgent?**
+**How do I remove Cip's Agent Loop?**
 Delete the `.claude/` directory from your project, or remove the symlink: `rm .claude`.
 
 **Which Claude plan do I need?**
 Claude Code requires an Anthropic Pro, Team, or Enterprise subscription.
 
 **Does this work with other AI coding tools?**
-No. dotAiAgent uses Claude Code's native `.claude/` directory convention. It's purpose-built for Claude Code.
+No. Cip's Agent Loop uses Claude Code's native `.claude/` directory convention. It's purpose-built for Claude Code.
 
 ---
 

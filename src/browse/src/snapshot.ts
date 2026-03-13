@@ -54,6 +54,7 @@ interface CursorElement {
   text: string;
   reason: string;          // "cursor:pointer" | "onclick" | "tabindex" | "role" | "data-action"
   cssSelector: string;     // best-effort unique CSS selector for building Locator
+  selectorIndex: number;   // element's index among all matches of cssSelector in the DOM
 }
 
 /**
@@ -166,6 +167,7 @@ async function findCursorInteractiveElements(
         text: string;
         reason: string;
         cssSelector: string;
+        selectorIndex: number;
       }> = [];
 
       // Build a set of elements already in the accessibility tree by checking
@@ -257,13 +259,18 @@ async function findCursorInteractiveElements(
             }
           }
 
-          // Walk up to find nearest ancestor with an ID (max 5 levels)
+          // Walk up to find nearest ancestor with an ID (max 5 levels).
+          // When scoped, skip ancestors outside the scope root to avoid
+          // generating selectors that reference IDs the scoped locator can't reach.
           let ancestor: HTMLElement | null = el.parentElement;
           let anchor = '';
           let depth = 0;
           while (ancestor && ancestor !== document.body && depth < 5) {
             if (ancestor.id) {
-              anchor = `#${CSS.escape(ancestor.id)}`;
+              // If scoped, only use this anchor if it's inside the scope root
+              if (!scopeSel || root.contains(ancestor)) {
+                anchor = `#${CSS.escape(ancestor.id)}`;
+              }
               break;
             }
             ancestor = ancestor.parentElement;
@@ -274,6 +281,18 @@ async function findCursorInteractiveElements(
           cssSelector = anchor ? `${anchor} ${sel}` : sel;
         }
 
+        // Compute the element's actual index among all DOM matches of cssSelector.
+        // When scoped, query against the scope root so nth() aligns with
+        // Playwright's page.locator(scope).locator(cssSelector).
+        let selectorIndex = 0;
+        try {
+          const queryRoot = scopeSel ? root : document.body;
+          const allMatches = queryRoot.querySelectorAll(cssSelector);
+          for (let m = 0; m < allMatches.length; m++) {
+            if (allMatches[m] === el) { selectorIndex = m; break; }
+          }
+        } catch {}
+
         results.push({
           tag,
           id: el.id || '',
@@ -281,6 +300,7 @@ async function findCursorInteractiveElements(
           text,
           reason,
           cssSelector,
+          selectorIndex,
         });
       }
 
@@ -439,33 +459,20 @@ async function appendCursorElements(
     output.push('');
     output.push('[cursor-interactive]');
 
-    // Track CSS selector occurrences for nth() disambiguation.
-    // Without this, repeated component trees (e.g., product cards) all
-    // resolve to .first() — silently binding the wrong element.
-    const selectorCounts = new Map<string, number>();
-    for (const elem of cursorElements) {
-      selectorCounts.set(elem.cssSelector, (selectorCounts.get(elem.cssSelector) || 0) + 1);
-    }
-    const selectorSeen = new Map<string, number>();
-
     for (const elem of cursorElements) {
       const ref = `e${refCounter++}`;
-      const seenIndex = selectorSeen.get(elem.cssSelector) || 0;
-      selectorSeen.set(elem.cssSelector, seenIndex + 1);
-      const totalForSelector = selectorCounts.get(elem.cssSelector) || 1;
 
       // Build Playwright locator via CSS selector.
-      // Use nth() to disambiguate when multiple elements share the same
-      // best-effort selector (e.g., repeated component trees).
+      // Use nth(selectorIndex) — the actual index among all DOM matches —
+      // instead of a seen-counter which can misalign when non-cursor siblings
+      // share the same selector.
       let baseLocator: Locator;
       if (opts.selector) {
         baseLocator = page.locator(opts.selector).locator(elem.cssSelector);
       } else {
         baseLocator = page.locator(elem.cssSelector);
       }
-      const locator = totalForSelector > 1
-        ? baseLocator.nth(seenIndex)
-        : baseLocator.first();
+      const locator = baseLocator.nth(elem.selectorIndex);
 
       refMap.set(ref, locator);
 

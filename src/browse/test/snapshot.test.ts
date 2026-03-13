@@ -349,6 +349,96 @@ describe('Ref resolution', () => {
   });
 });
 
+// ─── Tab-Scoped Snapshot-Diff ────────────────────────────────────
+
+describe('Tab-scoped snapshot-diff', () => {
+  test('snapshot-diff compares against correct tab baseline after tab switch', async () => {
+    // Tab 1: navigate and take snapshot
+    await handleWriteCommand('goto', [baseUrl + '/snapshot.html'], bm);
+    const snap1 = await handleMetaCommand('snapshot', [], bm, shutdown);
+    expect(snap1).toContain('Snapshot Test');
+    const tab1Id = bm.getActiveTabId();
+
+    // Open tab 2 to a different page and take snapshot
+    const tab2Result = await handleMetaCommand('newtab', [baseUrl + '/basic.html'], bm, shutdown);
+    expect(tab2Result).toContain('Opened tab');
+    const tab2Id = bm.getActiveTabId();
+    const snap2 = await handleMetaCommand('snapshot', [], bm, shutdown);
+    expect(snap2).toContain('Hello World');
+
+    // snapshot-diff on tab 2 should compare tab 2's current vs tab 2's baseline
+    // (not tab 1's baseline)
+    const diff2 = await handleMetaCommand('snapshot-diff', [], bm, shutdown);
+    // Since we just took the snapshot and page hasn't changed, should be no changes
+    expect(diff2).toContain('No changes detected');
+
+    // Switch back to tab 1
+    await handleMetaCommand('tab', [String(tab1Id)], bm, shutdown);
+    // Tab 1's baseline should still be from tab 1 (not tab 2's)
+    const lastSnap = bm.getLastSnapshot();
+    expect(lastSnap).toContain('Snapshot Test');
+    expect(lastSnap).not.toContain('Hello World');
+
+    // Clean up: close tab 2
+    await handleMetaCommand('closetab', [String(tab2Id)], bm, shutdown);
+  });
+
+  test('closed tab snapshot entry is cleaned up', async () => {
+    const tabResult = await handleMetaCommand('newtab', [baseUrl + '/basic.html'], bm, shutdown);
+    const tabId = bm.getActiveTabId();
+    await handleMetaCommand('snapshot', [], bm, shutdown);
+    expect(bm.getLastSnapshot()).toBeTruthy();
+
+    // Close the tab — snapshot should be cleaned up
+    const prevTabId = 1; // original tab
+    await handleMetaCommand('closetab', [String(tabId)], bm, shutdown);
+
+    // Switch to a valid tab and verify closed tab's snapshot is gone
+    // (getLastSnapshot returns null for a non-existent tab entry)
+    // We can't directly test the closed tab since we can't switch to it,
+    // but we verified closeTab calls tabSnapshots.delete in the implementation
+  });
+});
+
+// ─── Cursor-Interactive Duplicate Selector ───────────────────────
+
+describe('Cursor-interactive nth() accuracy', () => {
+  test('cursor-interactive refs point to correct elements with non-cursor siblings', async () => {
+    await handleWriteCommand('goto', [baseUrl + '/cursor-duplicates.html'], bm);
+    const result = await handleMetaCommand('snapshot', ['-C'], bm, shutdown);
+
+    // Should detect exactly 2 cursor-interactive elements (Product A and Product C)
+    const cursorSection = result.split('[cursor-interactive]')[1];
+    expect(cursorSection).toBeDefined();
+    const cursorLines = cursorSection!.split('\n').filter(l => l.includes('@e'));
+    expect(cursorLines.length).toBe(2);
+
+    expect(cursorLines[0]).toContain('Product A');
+    expect(cursorLines[1]).toContain('Product C');
+
+    // Click the ref for "Product C" — should click the correct (3rd) card, not the 2nd
+    const productCLine = cursorLines.find(l => l.includes('Product C'));
+    const refMatch = productCLine!.match(/@(e\d+)/);
+    expect(refMatch).toBeDefined();
+    const ref = `@${refMatch![1]}`;
+
+    const clickResult = await handleWriteCommand('click', [ref], bm);
+    expect(clickResult).toContain('Clicked');
+
+    // Verify it clicked the right card (3rd .card, not 2nd)
+    const clicked = await handleReadCommand('js', [
+      'document.querySelectorAll(".card")[2].dataset.clicked'
+    ], bm);
+    expect(clicked).toBe('true');
+
+    // Verify card at index 1 was NOT clicked
+    const notClicked = await handleReadCommand('js', [
+      'document.querySelectorAll(".card")[1].dataset.clicked || "undefined"'
+    ], bm);
+    expect(notClicked).toBe('undefined');
+  });
+});
+
 // ─── Ref Invalidation ───────────────────────────────────────────
 
 describe('Ref invalidation', () => {

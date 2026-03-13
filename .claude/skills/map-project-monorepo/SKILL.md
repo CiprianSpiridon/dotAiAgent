@@ -1,6 +1,6 @@
 ---
-name: update-claude-md-after-install-monorepo
-description: Generate per-package and per-app CLAUDE.md files for monorepos. Each subdirectory gets a focused, self-contained CLAUDE.md with exports, key files, dependencies, and conventions. Root CLAUDE.md and reference files are simplified by pushing detail down to where Claude actually needs it. Use after major refactors, package additions, or when Claude searches blindly across a large monorepo.
+name: map-project-monorepo
+description: Scan a monorepo and generate/update per-package CLAUDE.md files. Each subdirectory gets a focused, self-contained CLAUDE.md with exports, key files, dependencies, and conventions. Run after each coding session, major refactors, or package additions to keep the AI context map current.
 ---
 
 <EXTREMELY-IMPORTANT>
@@ -69,7 +69,7 @@ Understanding the loading mechanism is critical:
 
 - **After monorepo refactor:** Single package split into many (e.g., `packages/core` → 12 packages)
 - **Package added/removed:** New package needs CLAUDE.md, removed package's docs are stale
-- **After running `update-claude-md-after-install`:** Root docs exist but no per-package files
+- **After running `map-project`:** Root docs exist but no per-package files
 - **Claude searches blindly:** Searching across 15+ packages for something in one package
 - **Periodic refresh:** User asks to update monorepo docs or sync CLAUDE.md files
 
@@ -81,8 +81,8 @@ Understanding the loading mechanism is critical:
 
 ## When NOT to Use
 
-- **Single-package project:** Use `update-claude-md-after-install` instead
-- **Only root needs updating:** Use `update-claude-md-after-install` instead
+- **Single-package project:** Use `map-project` instead
+- **Only root needs updating:** Use `map-project` instead
 - **Monorepo with 1-2 packages:** Overhead not worth it — root docs suffice
 
 ---
@@ -563,7 +563,7 @@ Monorepo CLAUDE.md generation complete.
 
 ## Integration with Other Skills
 
-- **`update-claude-md-after-install`** — Use that for single-package projects or root-only updates. Use THIS skill for monorepo per-package docs.
+- **`map-project`** — Use that for single-package projects or root-only updates. Use THIS skill for monorepo per-package docs.
 - **`start`** — Start skill identifies if monorepo docs are needed
 - **`rebuild`** — After rebuild, run this if packages were added/removed
 
@@ -575,7 +575,7 @@ New package added
 rebuild skill (verify build)
        │
        ▼
-update-claude-md-after-install-monorepo (this skill)
+map-project-monorepo (this skill)
        │
        ▼
 commit skill (commit the new CLAUDE.md files)

@@ -282,14 +282,15 @@ async function ensureServer(): Promise<ServerState> {
 // Commands that are safe to retry after a transport failure.
 // Write commands (click, fill, goto, etc.) may have already executed
 // before the connection dropped — retrying them could duplicate side effects.
-const SAFE_TO_RETRY = new Set([
+// NOTE: 'js' and 'eval' excluded — page.evaluate() can run arbitrary side effects
+// NOTE: 'storage' excluded — 'storage set' mutates localStorage
+export const SAFE_TO_RETRY = new Set([
   // Read commands — no side effects
   'text', 'html', 'links', 'forms', 'accessibility',
-  'js', 'css', 'attrs', 'state', 'dialog',
+  'css', 'attrs', 'state', 'dialog',
   'console', 'network', 'cookies', 'perf',
   // Meta commands that are read-only
   'tabs', 'status', 'url', 'snapshot', 'snapshot-diff', 'devices',
-  // NOTE: 'storage' excluded — 'storage set' mutates localStorage
 ]);
 
 // Commands that return static data independent of page state.

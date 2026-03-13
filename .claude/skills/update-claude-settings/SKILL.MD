@@ -741,7 +741,7 @@ Settings generation complete.
 The `update-claude-settings` skill integrates with:
 
 - **`start`** — Run `update-claude-settings` when setting up a new project
-- **`update-claude-md-after-install`** — After installing framework agents, update settings to match
+- **`map-project`** — After mapping the project, update settings to match
 - **`commit`** — After generating settings, commit the changes
 
 **Workflow Chain:**
