@@ -374,7 +374,7 @@ The browse skill gives Claude Code a persistent headless Chromium browser with 4
 │       ▼                                                         │
 │  ┌──────────┐    HTTP POST     ┌──────────────┐                 │
 │  │ browse   │ ──────────────── │ Bun HTTP     │                 │
-│  │ CLI      │  localhost:9400  │ server       │                 │
+│  │ CLI      │  localhost:9999  │ server       │                 │
 │  │          │  Bearer token    │              │                 │
 │  │ compiled │ ◄──────────────  │  Playwright  │──── Chromium    │
 │  │ binary   │  plain text      │  API calls   │    (headless)   │
